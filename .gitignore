@@ -1,3 +1,77 @@
+# ========== Global ========== #
+*.log
+*.env
+*.env.*
+*.pyc
+__pycache__/
+.DS_Store
+.vscode/
 .idea/
+*.sqlite3
+*.db
+*.bak
+*.swp
+*.tmp
+
+# ========== Crawler (Python) ========== #
+crawler/__pycache__/
+crawler/.idea/
+crawler/*.pyc
+crawler/.venv/
+crawler/venv/
+crawler/*.log
+crawler/.mypy_cache/
+crawler/.pytest_cache/
+
+# ========== Django Backend ========== #
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+backend/.venv/
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/*.log
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/local_settings.py
+backend/secrets.json
+backend/.coverage
+backend/coverage.xml
+
+# Optional: nếu dùng Docker
+backend/*.pid
+backend/tmp/
+
+# Gunicorn (nếu dùng)
+gunicorn.pid
+
+# ========== PostgreSQL ========== #
+*.dump
+*.sql
+pgdata/
+postgres-data/
+# Lưu ý: không ignore file docker-compose.yml nếu dùng Docker
+
+# ========== React Frontend ========== #
+frontend/node_modules/
+frontend/.env
+frontend/.env.*
+frontend/build/
+frontend/dist/
+frontend/.cache/
+frontend/.next/
+frontend/coverage/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.turbo/
+frontend/.eslintcache
+frontend/.parcel-cache
+
+# ========== OS Specific ========== #
+Thumbs.db
+ehthumbs.db
+desktop.ini
 
 ProductDoc.MD
