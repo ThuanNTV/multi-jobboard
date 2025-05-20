@@ -13,4 +13,3 @@ if __name__ == "__main__":
         # VietnamworksSpider
     ])
     file_path = runner.save_results()
-    print(f"Kết quả đã được lưu tại: {file_path}")
