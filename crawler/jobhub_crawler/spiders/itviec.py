@@ -3,12 +3,14 @@ import time
 import random
 import requests
 import concurrent.futures
+
+from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
-from selenium.common.exceptions import  NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException
 import undetected_chromedriver as uc
 
 from jobhub_crawler.core.base_crawler import BaseCrawler
@@ -73,7 +75,6 @@ class ItViecSpider(BaseCrawler):
 
         self.session.headers.update(self.headers)
 
-
     def run(self):
         """Execute the crawler to collect job listings from ItViec with Cloudflare bypass"""
         try:
@@ -106,7 +107,7 @@ class ItViecSpider(BaseCrawler):
                     last_page = 1
 
                 # Take a screenshot for debugging (optional)
-                self.driver.save_screenshot("itviec_loaded.png")
+                # self.driver.save_screenshot("itviec_loaded.png")
 
                 # Process each page
                 for page in range(1, last_page + 1):
@@ -124,38 +125,65 @@ class ItViecSpider(BaseCrawler):
 
                     # Extract job data from this page
                     for job_card in job_cards:
-                        self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",
-                                              job_card)
+                        self.driver.execute_script(
+                            "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",
+                            job_card)
                         time.sleep(random.uniform(1, 3))
                         self.driver.execute_script("arguments[0].click();", job_card)
-                        # try:
-                        #     # Extract basic job info
-                        #     title_element = job_card.find_element(By.XPATH,
-                        #                                           ".//h3[contains(@class, 'title')] | .//div[contains(@class, 'title')]")
-                        #     title = title_element.text.strip() if title_element else "N/A"
-                        #
-                        #     company_element = job_card.find_element(By.XPATH,
-                        #                                             ".//div[contains(@class, 'company')] | .//span[contains(@class, 'company')]")
-                        #     company = company_element.text.strip() if company_element else "N/A"
-                        #
-                        #     link_element = title_element.find_element(By.XPATH,
-                        #                                               "ancestor::a") if title_element else None
-                        #     link = link_element.get_attribute("href") if link_element else ""
-                        #
-                        #     # Create job item
-                        #     job_item = JobItem(
-                        #         title=title,
-                        #         company=company,
-                        #         location="",  # Will extract in detail page
-                        #         url=link,
-                        #         description="",  # Will extract in detail page
-                        #         source="itviec.com"
-                        #     )
-                        #
-                        #     self.jobs.append(job_item)
-                        #
-                        # except Exception as e:
-                        #     self.logger.error(f"Error extracting job card data: {str(e)}")
+                        try:
+                            job_card_text = job_card.find_element(By.CLASS_NAME, "text-break").text
+                            # //div[contains(@class, 'preview-job-wrapper')]
+                            wait_for_element(self, By.XPATH,
+                                             "//div[contains(@class, 'preview-job-wrapper')]//div[contains(@class, 'preview-job-header')]//h2")
+                            preview_job_text = wait_for_element(self, By.XPATH,
+                                                                "//div[contains(@class, 'preview-job-wrapper')]//div[contains(@class, 'preview-job-header')]//h2")[
+                                0].text
+                            if preview_job_text == job_card_text:
+                                html = self.driver.page_source
+                                soup = BeautifulSoup(html, "html.parser")
+                                time.sleep(random.uniform(1, 3))
+                                element = soup.find("div", class_="preview-job-wrapper")
+                                title = element.find('h2').text.strip()
+                                company = element.find('span').find('a').text.strip()
+
+                                locations_e = element.find('section', class_='preview-job-overview').find_all('span')
+                                locations = [location.text.strip() for location in locations_e if location.text.strip()]
+                                posted_at = locations[-1] if locations else None
+                                # remove element last
+                                locations = locations[:-1]
+
+                                salary = element.find('div', class_='salary').text.strip()
+                                tag = element.find('section', class_='preview-job-overview').find_all('div')[
+                                    -1].find_all('a')
+                                tags = [tag.text.strip() for tag in tag if tag.text.strip()]
+                                url = element.find('div', class_='preview-job-header').find('a', href=lambda
+                                    href: href and href.startswith('/it-jobs/'))['href']
+                                descriptions = element.find('div', class_='preview-job-content').find_all('section')
+                                description = "\n------\n".join(
+                                    [description.text.strip().replace('\n', ' ') for description in descriptions if
+                                     description.text.strip() and len(descriptions) > 1])
+
+                                # Create job item
+                                job_item = JobItem(
+                                    title=title,
+                                    company=company,
+                                    location=locations,
+                                    salary=salary,
+                                    posted_at=posted_at,
+                                    tags=tags,
+                                    url=f'https://itviec.com{url}',
+                                    source="https://itviec.com",
+                                    description=description
+                                )
+                                print(job_item)
+                                self.jobs.append(job_item)
+                                time.sleep(random.uniform(1, 3))
+                                print(self.jobs)
+
+
+
+                        except Exception as e:
+                            self.logger.error(f"Error extracting job card data: {str(e)}")
 
                     # Navigate to next page if not the last
                     if page < last_page:
@@ -172,9 +200,7 @@ class ItViecSpider(BaseCrawler):
                             self.logger.error(f"Error navigating to next page: {str(e)}")
                             break
 
-                # Fetch job details in parallel for all collected jobs
-                if self.jobs:
-                    self._fetch_job_details()
+
 
             except Exception as e:
                 self.logger.error(f"Error processing job pages: {str(e)}")
@@ -188,84 +214,6 @@ class ItViecSpider(BaseCrawler):
             self.quit()
 
         return self.jobs
-
-    def _fetch_job_details(self):
-        """Fetch detailed job information in parallel"""
-        self.logger.info(f"Fetching details for {len(self.jobs)} jobs")
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            # Submit all jobs to the executor
-            future_to_job = {executor.submit(self._fetch_single_job_detail, job): job for job in self.jobs}
-
-            # Process completed futures
-            for future in concurrent.futures.as_completed(future_to_job):
-                job = future_to_job[future]
-                try:
-                    # Result is the updated job
-                    updated_job = future.result()
-                    # Find and replace the job in self.jobs with the updated one
-                    if updated_job is not None:
-                        # The job is already updated by reference, no need to replace it
-                        pass
-                except Exception as e:
-                    self.logger.error(f"Error fetching details for job {job.title}: {str(e)}")
-
-    def _fetch_single_job_detail(self, job):
-        """Fetch details for a single job"""
-        if not job.url:
-            return job
-
-        try:
-            # Create a new driver instance for this thread to avoid conflicts
-            options = Options()
-            options.add_argument("--headless=new")
-            options.add_argument("--disable-gpu")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
-            options.add_argument(
-                "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
-
-            # Use undetected_chromedriver if needed
-            if self.use_undetected:
-                thread_driver = uc.Chrome(options=options)
-            else:
-                service = Service()
-                thread_driver = webdriver.Chrome(service=service, options=options)
-
-            try:
-                # Get job detail page
-                thread_driver.get(job.url)
-                time.sleep(random.uniform(2, 4))
-
-                # Extract details
-                try:
-                    # Extract location
-                    location_element = thread_driver.find_element(By.XPATH,
-                                                                  "//div[contains(@class, 'location')] | //span[contains(@class, 'location')]")
-                    job.location = location_element.text.strip() if location_element else ""
-                except NoSuchElementException:
-                    job.location = ""
-
-                try:
-                    # Extract description
-                    description_element = thread_driver.find_element(By.XPATH,
-                                                                     "//div[contains(@class, 'job-description') or contains(@class, 'description')]")
-                    job.description = description_element.get_attribute(
-                        "innerHTML").strip() if description_element else ""
-                except NoSuchElementException:
-                    job.description = ""
-
-                # Extract any other details you need
-                # ...
-
-                return job
-
-            finally:
-                thread_driver.quit()
-
-        except Exception as e:
-            self.logger.error(f"Error in _fetch_single_job_detail for {job.url}: {str(e)}")
-            return job
 
     def quit(self):
         """Safely quit the driver with proper error handling"""
