@@ -53,22 +53,23 @@ def find_page_number(driver, xpath, delay=2):
         return 1
 
 
-def wait_element(driver, by, locator, timeout=10):
-    """
-    Waits for specified elements to appear on the page using Selenium WebDriver.
-
-    Args:
-        driver (selenium.webdriver): The Selenium WebDriver instance.
-        by: The locator strategy to use (e.g., By.XPATH, By.ID)
-        locator (str): The locator string to find elements
-        timeout (int, optional): Maximum wait time in seconds. Defaults to 10.
-
-    Returns:
-        bool: True if elements were found in time, False otherwise.
-    """
-    try:
-        return WebDriverWait(driver, timeout).until(EC.presence_of_all_elements_located((by, locator)))
-    except TimeoutException:
-        print("⏰ Timed out waiting for elements to load.")
-        driver.quit()
-        return TimeoutException
+def wait_for_element(self, by, selector, timeout=20, retries=2):
+    """Enhanced wait for elements with retry mechanism"""
+    for attempt in range(retries):
+        try:
+            elements = WebDriverWait(self.driver, timeout).until(
+                EC.presence_of_all_elements_located((by, selector))
+            )
+            return elements
+        except TimeoutException:
+            self.logger.warning(f"Timeout waiting for {selector} (attempt {attempt + 1}/{retries})")
+            if attempt < retries - 1:
+                time.sleep(2)
+            else:
+                return []
+        except Exception as e:
+            self.logger.error(f"Error finding element {selector}: {str(e)}")
+            if attempt < retries - 1:
+                time.sleep(2)
+            else:
+                return []
