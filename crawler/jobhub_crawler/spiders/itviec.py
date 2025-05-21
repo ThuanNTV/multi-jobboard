@@ -2,21 +2,15 @@ import logging
 import time
 import random
 import requests
-import concurrent.futures
 
 from bs4 import BeautifulSoup
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-
-from selenium.common.exceptions import NoSuchElementException
-import undetected_chromedriver as uc
 
 from jobhub_crawler.core.base_crawler import BaseCrawler
 from jobhub_crawler.core.job_item import JobItem
 from jobhub_crawler.utils.helpers import wait_for_element
 
+# TODO: clean code, tối ưu lại, phân hàm rõ ràng, chỉnh sửa lại lấy dũ liệu còn thiếu, ghi chú tiếng việt
 
 class ItViecSpider(BaseCrawler):
     """Spider for crawling job listings from ItViec.com with Cloudflare bypass capabilities"""
@@ -32,7 +26,9 @@ class ItViecSpider(BaseCrawler):
         """
         # Always call parent init first
         super().__init__(headless=headless,
-                         user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+                         user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+                         use_undetected=True
+                         )
 
         # Ensure logger is set up - this should be handled by BaseCrawler but we'll ensure it exists
         if not hasattr(self, 'logger'):
@@ -125,19 +121,20 @@ class ItViecSpider(BaseCrawler):
 
                     # Extract job data from this page
                     for job_card in job_cards:
+                        self.logger.info("Found job card on page")
                         self.driver.execute_script(
                             "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",
                             job_card)
                         time.sleep(random.uniform(1, 3))
                         self.driver.execute_script("arguments[0].click();", job_card)
+                        time.sleep(random.uniform(1, 3))
                         try:
                             job_card_text = job_card.find_element(By.CLASS_NAME, "text-break").text
                             # //div[contains(@class, 'preview-job-wrapper')]
-                            wait_for_element(self, By.XPATH,
-                                             "//div[contains(@class, 'preview-job-wrapper')]//div[contains(@class, 'preview-job-header')]//h2")
                             preview_job_text = wait_for_element(self, By.XPATH,
-                                                                "//div[contains(@class, 'preview-job-wrapper')]//div[contains(@class, 'preview-job-header')]//h2")[
+                                                                f"//div[contains(@class, 'preview-job-wrapper')]//div[contains(@class, 'preview-job-header')]//h2[contains(text(), '{job_card_text}')]")[
                                 0].text
+                            print(f'{job_card_text}--{preview_job_text}')
                             if preview_job_text == job_card_text:
                                 html = self.driver.page_source
                                 soup = BeautifulSoup(html, "html.parser")
@@ -149,12 +146,14 @@ class ItViecSpider(BaseCrawler):
                                 locations_e = element.find('section', class_='preview-job-overview').find_all('span')
                                 locations = [location.text.strip() for location in locations_e if location.text.strip()]
                                 posted_at = locations[-1] if locations else None
-                                # remove element last
+                                # loại phần tử cuối cùng vì phần tử đó là thông tin của posted_at
                                 locations = locations[:-1]
 
                                 salary = element.find('div', class_='salary').text.strip()
                                 tag = element.find('section', class_='preview-job-overview').find_all('div')[
                                     -1].find_all('a')
+
+                                # TODO: còn trường hợp nhiều tag gồm kĩ năng, Chuyên môn, Lĩnh vực
                                 tags = [tag.text.strip() for tag in tag if tag.text.strip()]
                                 url = element.find('div', class_='preview-job-header').find('a', href=lambda
                                     href: href and href.startswith('/it-jobs/'))['href']
@@ -175,10 +174,11 @@ class ItViecSpider(BaseCrawler):
                                     source="https://itviec.com",
                                     description=description
                                 )
-                                print(job_item)
                                 self.jobs.append(job_item)
                                 time.sleep(random.uniform(1, 3))
-                                print(self.jobs)
+                            else:
+                                self.logger.info(
+                                    f"job_card_text={job_card_text} - Không trùng với - preview_job_text={preview_job_text}")
 
 
 

@@ -9,6 +9,7 @@ from jobhub_crawler.core.base_crawler import BaseCrawler
 from jobhub_crawler.core.job_item import JobItem
 from jobhub_crawler.utils.helpers import scroll_to_bottom
 
+# TODO: clean code, tối ưu lại, phân hàm rõ ràng, chỉnh sửa lại lấy dũ liệu còn thiếu, ghi chú tiếng việt
 
 class TopDevSpider(BaseCrawler):
     """Spider for crawling job listings from TopDev.vn using BeautifulSoup and multi-threading"""
@@ -144,6 +145,7 @@ class TopDevSpider(BaseCrawler):
     def _fetch_job_description(self, job_detail):
         """Fetch and extract job description for a single job listing"""
         try:
+            # TODO: xuất hiện trường hợp không lấy được description: tìm dữ liệu mẫu không lấy được -> thực hiện trích xuất lại dữ liệu
             self.logger.info(f"Fetching description for: {job_detail['title']}")
 
             # Add a small delay to prevent hammering the server

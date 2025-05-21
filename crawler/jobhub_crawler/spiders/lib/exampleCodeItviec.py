@@ -214,7 +214,7 @@ class ItViecSpider(BaseCrawler):
         for attempt in range(max_retries):
             try:
                 # Get the job title before clicking
-                # TODO: Vẫn còn miss một số job_card cần xem lại
+                # TODO: Vẫn còn miss một số job_card cần xem lại -> tham khảo code bên spiders.itviec.py
                 try:
                     title_element = job_card.find_element(By.XPATH, self.SELECTORS["job_card_title"])
                     job_card_title = title_element.text.strip() if title_element else "Unknown"
