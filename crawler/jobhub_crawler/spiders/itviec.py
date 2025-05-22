@@ -11,7 +11,7 @@ from jobhub_crawler.core.job_item import JobItem
 from jobhub_crawler.utils.helpers import wait_for_element
 
 # TODO: clean code, tối ưu lại, phân hàm rõ ràng, chỉnh sửa lại lấy dũ liệu còn thiếu, ghi chú tiếng việt
-
+# FIXME: Tối ưu hóa hiệu suất, QUÁ CHẬM
 class ItViecSpider(BaseCrawler):
     """Spider for crawling job listings from ItViec.com with Cloudflare bypass capabilities"""
 
@@ -125,16 +125,13 @@ class ItViecSpider(BaseCrawler):
                         self.driver.execute_script(
                             "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",
                             job_card)
-                        time.sleep(random.uniform(1, 3))
                         self.driver.execute_script("arguments[0].click();", job_card)
-                        time.sleep(random.uniform(1, 3))
                         try:
                             job_card_text = job_card.find_element(By.CLASS_NAME, "text-break").text
                             # //div[contains(@class, 'preview-job-wrapper')]
                             preview_job_text = wait_for_element(self, By.XPATH,
                                                                 f"//div[contains(@class, 'preview-job-wrapper')]//div[contains(@class, 'preview-job-header')]//h2[contains(text(), '{job_card_text}')]")[
                                 0].text
-                            print(f'{job_card_text}--{preview_job_text}')
                             if preview_job_text == job_card_text:
                                 html = self.driver.page_source
                                 soup = BeautifulSoup(html, "html.parser")
@@ -175,7 +172,6 @@ class ItViecSpider(BaseCrawler):
                                     description=description
                                 )
                                 self.jobs.append(job_item)
-                                time.sleep(random.uniform(1, 3))
                             else:
                                 self.logger.info(
                                     f"job_card_text={job_card_text} - Không trùng với - preview_job_text={preview_job_text}")
@@ -189,7 +185,7 @@ class ItViecSpider(BaseCrawler):
                     if page < last_page:
                         try:
                             next_button = wait_for_element(self, By.XPATH,
-                                                           "//div[@class='page next']/a | //a[contains(@class, 'next') or contains(text(), 'Next')]")
+                                                           "//div[@class='page next']/a | //a[contains(@class, 'next')]")
                             if next_button:
                                 next_button[0].click()
                                 time.sleep(random.uniform(3, 5))  # Wait for page to load
