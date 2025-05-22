@@ -23,7 +23,7 @@ def run_crawler():
         runner = JobRunner()
         runner.run_all([
             ItViecSpider,
-            TopDevSpider,
+            # TopDevSpider,
             # VietnamworksSpider
         ])
         file_path = runner.save_results()
@@ -37,8 +37,9 @@ def run_crawler():
 
 
 if __name__ == '__main__':
-    while True:
-        logging.info('Start crawling...')
-        run_crawler()
-        logging.info("⏳ Đợi 1 tiếng rồi chạy lại...")
-        time.sleep(INTERVAL_SECONDS | 3600)
+    # while True:
+    #
+    #     time.sleep(INTERVAL_SECONDS | 3600)
+    logging.info('Start crawling...')
+    run_crawler()
+    logging.info("⏳ Đợi 1 tiếng rồi chạy lại...")
