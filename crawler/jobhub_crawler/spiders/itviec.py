@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 
 from jobhub_crawler.core.base_crawler import BaseCrawler
 from jobhub_crawler.core.job_item import JobItem
-from jobhub_crawler.utils.helpers import _wait_for_element, _get_total_page, _click_next_button, _wait_for_page_load
+from jobhub_crawler.utils.helpers import _wait_for_element, _get_total_page, _click_next_button, _wait_for_page_load, _remove_duplicates
 
 
 # TODO: clean code, tối ưu lại, phân hàm rõ ràng, chỉnh sửa lại lấy dũ liệu còn thiếu, ghi chú tiếng việt
@@ -106,8 +106,7 @@ class ItViecSpider(BaseCrawler):
                 for page in range(1, last_page_number + 1):
 
                     _wait_for_page_load(self, current_url)
-                    if page == 2:
-                        print('page 2')
+
                     self.logger.info(f"Processing page {page}/{last_page_number}")
 
                     # Wait for job listings to load
@@ -442,21 +441,33 @@ class ItViecSpider(BaseCrawler):
             return ''
 
     def _extract_tags(self, preview_element):
-        """Trích xuất danh sách tags (kỹ năng, chuyên môn, lĩnh vực)"""
+        """Trích xuất danh sách tags (Kỹ năng, Chuyên môn, Lĩnh vực)"""
         try:
             overview_section = preview_element.find('section', class_='preview-job-overview')
             if not overview_section:
                 return []
 
-            # Tìm div cuối cùng trong overview section chứa các tags
+            tags = []
             overview_divs = overview_section.find_all('div')
-            if not overview_divs:
-                return []
 
-            tag_elements = overview_divs[-1].find_all('a')
-            tags = [tag.text.strip() for tag in tag_elements if tag.text.strip()]
+            # Các tiêu đề để so khớp
+            headings = ['Skills:', 'Job Expertise:', 'Job Domain:', 'Kỹ năng:', 'Chuyên môn:', 'Lĩnh vực:']
 
-            return tags
+            for div in overview_divs:
+                if div.get_text(strip=True) in headings:
+                    next_div = div.find_next_sibling("div")
+                    if not next_div:
+                        continue
+
+                    tag_elements = next_div.find_all('a')
+                    if tag_elements:
+                        tags.extend(tag.text.strip() for tag in tag_elements if tag.text.strip())
+                    else:
+                        # Nếu không có thẻ <a>, lấy luôn text trong div (thường là <div class="itag ...">)
+                        tags.extend(
+                            span.get_text(strip=True) for span in next_div.find_all('div') if span.get_text(strip=True))
+
+            return _remove_duplicates(tags)
 
         except Exception as e:
             self.logger.error(f"Lỗi khi trích xuất tags: {str(e)}")
@@ -498,7 +509,7 @@ class ItViecSpider(BaseCrawler):
                 if section_text:
                     descriptions.append(section_text)
 
-            return "\n------\n".join(descriptions)
+            return "\n------\n".join(descriptions[1:])
 
         except Exception as e:
             self.logger.error(f"Lỗi khi trích xuất description: {str(e)}")
