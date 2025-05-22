@@ -11,8 +11,8 @@ from jobhub_crawler.core.job_item import JobItem
 from jobhub_crawler.utils.helpers import _wait_for_element, _get_total_page, _click_next_button, _wait_for_page_load, _remove_duplicates
 
 
-# TODO: clean code, tối ưu lại, phân hàm rõ ràng, chỉnh sửa lại lấy dũ liệu còn thiếu, ghi chú tiếng việt
-# FIXME: Tối ưu hóa hiệu suất, QUÁ CHẬM --> INFO - All spiders completed in 185.45 seconds
+# TODO: clean code, tối ưu lại, ghi chú tiếng việt
+# FIXME: Tối ưu hóa hiệu suất, QUÁ CHẬM -->  INFO - All spiders completed in 4263.80 seconds --> INFO - Results summary: {'ItViecSpider': 972}
 class ItViecSpider(BaseCrawler):
     """Trình thu thập (Spider) danh sách việc làm từ ItViec.com có khả năng vượt qua bảo mật Cloudflare"""
 
@@ -97,19 +97,17 @@ class ItViecSpider(BaseCrawler):
             try:
 
                 last_page_number = _get_total_page(self,
-                                                  '//div[@class="page" or contains(@class, "pagination")][last()]')
+                                                   '//div[@class="page" or contains(@class, "pagination")][last()]')
 
-                # Take a screenshot for debugging (optional)
-                # self.driver.save_screenshot("itviec_loaded.png")
                 current_url = ''
-                # Process each page
+                # Thực hiện chạy qua từng trang
                 for page in range(1, last_page_number + 1):
 
                     _wait_for_page_load(self, current_url)
 
                     self.logger.info(f"Processing page {page}/{last_page_number}")
 
-                    # Wait for job listings to load
+                    # đợi tải danh sách công việc
                     job_cards = _wait_for_element(self, By.XPATH,
                                                   "//div[contains(@class, 'job-card') or contains(@class, 'job_content')]")
 
@@ -119,7 +117,7 @@ class ItViecSpider(BaseCrawler):
 
                     self.logger.info(f"Found {len(job_cards)} job cards on page {page}")
 
-                    # Extract job data from this page
+                    # thực hiện lấy dữ liệu
                     for job_card in job_cards:
                         success = self.extract_job_details(job_card)
                         if success:
@@ -129,7 +127,8 @@ class ItViecSpider(BaseCrawler):
 
                         # Đợi giữa các job để tránh bị block
                         time.sleep(random.uniform(1, 2))
-                    # Navigate to next page if not the last
+
+                    # thực hiện chuyển trang
                     try:
                         _click_next_button(self, "//div[@class='page next']/a | //a[contains(@class, 'next')]",
                                            page_number=page, last_page_number=last_page_number, )
@@ -145,7 +144,7 @@ class ItViecSpider(BaseCrawler):
         except Exception as e:
             self.logger.error(f"Error during crawling: {str(e)}")
         finally:
-            # Close Selenium driver
+            # đóng Selenium driver
             self.quit()
 
         return self.jobs

@@ -7,14 +7,14 @@ from urllib.parse import urljoin
 
 from jobhub_crawler.core.base_crawler import BaseCrawler
 from jobhub_crawler.core.job_item import JobItem
-from jobhub_crawler.utils.helpers import scroll_to_bottom
+from jobhub_crawler.utils.helpers import _scroll_to_bottom
 
 # TODO: clean code, tối ưu lại, phân hàm rõ ràng, chỉnh sửa lại lấy dũ liệu còn thiếu, ghi chú tiếng việt
 
 class TopDevSpider(BaseCrawler):
     """Spider for crawling job listings from TopDev.vn using BeautifulSoup and multi-threading"""
 
-    def __init__(self, headless=False, max_workers=5):
+    def __init__(self, headless=True, max_workers=5):
         """
         Initialize the TopDev spider
 
@@ -44,7 +44,7 @@ class TopDevSpider(BaseCrawler):
         try:
             self.logger.info(f"Starting TopDev crawler with {self.max_workers} workers")
 
-            # Initial page content is loaded via Selenium with scroll_to_bottom in _extract_job_listings
+            # Initial page content is loaded via Selenium with _scroll_to_bottom in _extract_job_listings
 
             # Extract job listings
             job_details = self._extract_job_listings(None)  # Pass None as we'll get the page in the method
@@ -70,7 +70,7 @@ class TopDevSpider(BaseCrawler):
         # Use Selenium via BaseCrawler to scroll to the bottom to load all job listings
         try:
             self.get(self.base_url)
-            scroll_to_bottom(self.driver, 1, 10)
+            _scroll_to_bottom(self.driver, 1, 25)
 
             # Now get the updated page source after scrolling
             updated_html = self.driver.page_source
