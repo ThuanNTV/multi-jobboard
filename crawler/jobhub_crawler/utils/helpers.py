@@ -7,6 +7,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
+
 # simple
 def _remove_duplicates(tags: list[str]) -> list[str]:
     """Loại bỏ phần tử trùng lặp nhưng giữ nguyên thứ tự xuất hiện đầu tiên."""
@@ -18,11 +19,13 @@ def _remove_duplicates(tags: list[str]) -> list[str]:
             unique_tags.append(tag)
     return unique_tags
 
+
 def _find_project_root(start: Path) -> Path:
     for parent in start.resolve().parents:
         if (parent / "clawler").exists() or (parent / ".git").exists():
             return parent
     return start
+
 
 def _find_folder(foldername, search_dir):
     """
@@ -40,6 +43,7 @@ def _find_folder(foldername, search_dir):
             return os.path.join(root, foldername)
     return None
 
+
 def _find_file(filename, search_dir="output"):
     """
     Tìm file theo tên trong thư mục (mặc định là 'output/')
@@ -55,6 +59,7 @@ def _find_file(filename, search_dir="output"):
         if filename in files:
             return os.path.join(root, filename)
     return None
+
 
 def _find_latest_file(search_dir="output", suffix=".json") -> str | None:
     """
