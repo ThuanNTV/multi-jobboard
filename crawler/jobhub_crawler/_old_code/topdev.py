@@ -7,14 +7,16 @@ from urllib.parse import urljoin
 
 from jobhub_crawler.core.base_crawler import BaseCrawler
 from jobhub_crawler.core.job_item import JobItem
+from jobhub_crawler.utils.check import _get_data_in_file
 from jobhub_crawler.utils.helpers import _scroll_to_bottom
+
 
 # TODO: clean code, tối ưu lại, phân hàm rõ ràng, chỉnh sửa lại lấy dũ liệu còn thiếu, ghi chú tiếng việt
 
 class TopDevSpider(BaseCrawler):
     """Spider for crawling job listings from TopDev.vn using BeautifulSoup and multi-threading"""
 
-    def __init__(self, headless=True, max_workers=5):
+    def __init__(self, headless=False, max_workers=5):
         """
         Initialize the TopDev spider
 
