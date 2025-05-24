@@ -61,11 +61,61 @@ npm run dev
 ### Crawler (Scrapy/Selenium)
 
 ```bash
-cd crawler
-# Activate virtual environment and run spiders
-scrapy crawl topdev
-# or
-python selenium_linkedin.py
+# Cài python3-venv nếu chưa có
+apt update && apt install -y python3-venv
+
+# Tạo venv (môi trường ảo)
+python3 -m venv .venv
+
+# Kích hoạt môi trường ảo
+source .venv/bin/activate
+
+# Cài requirements
+pip install -r requirements.txt
+
+#
+touch .env
+nano .env
+TELEGRAM_BOT_TOKEN=''
+TELEGRAM_CHAT_ID=''
+
+INTERVAL_SECONDS=3600
+# run
+PYTHONPATH=. python jobhub_crawler/main.py
+
+```
+
+```
+✅ Cài pyenv
+
+# Cài dependencies
+
+apt update && apt install -y make build-essential libssl-dev zlib1g-dev \
+libbz2-dev libreadline-dev libsqlite3-dev curl git libncursesw5-dev xz-utils tk-dev
+
+# Cài pyenv
+
+curl https://pyenv.run | bash
+
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+source ~/.bashrc
+```
+
+# fix nếu có lỗi
+
+```
+lỗi 1: bạn đang chạy Python 3.12, nơi distutils đã bị loại bỏ hoàn toàn.
+🛠 Tạm thời fix nếu vẫn muốn dùng Python 3.12 (dễ lỗi)
+Tìm dòng:
+  from distutils.version import LooseVersion
+Và thay bằng:
+  from setuptools._distutils.version import LooseVersion
+
+lỗi 2: ❌ ModuleNotFoundError: No module named 'setuptools'
+  pip install setuptools
 ```
 
 ---
