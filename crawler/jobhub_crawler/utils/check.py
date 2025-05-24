@@ -1,6 +1,8 @@
 import os
 import json
 from pathlib import Path
+from datetime import datetime
+
 from typing import List, Dict, Union, Optional, Any
 
 from jobhub_crawler.utils.helpers import _find_folder, _find_latest_file, _find_project_root
@@ -83,8 +85,22 @@ def _find_diff_text_in_array(data: List[str], data_check: List[str]) -> List[str
 
     return list(only_in_data.union(only_in_data_check))
 
-
 def _find_diff_dict(data: List[Dict], data_check: List[Dict]) -> List[Dict]:
+    """
+    Trả về các dict trong data_check có URL chưa tồn tại trong data.
+    """
+    # Tập hợp các URL đã tồn tại trong data
+    existing_urls = {item["url"] for item in data if "url" in item}
+
+    # Trả về các dict trong data_check có URL chưa từng xuất hiện trong data
+    result = [
+        item for item in data_check
+        if "url" in item and item["url"] not in existing_urls
+    ]
+
+    return result
+
+def _find_diff_dict_2(data: List[Dict], data_check: List[Dict]) -> List[Dict]:
     """Trả về các dict có URL khác biệt giữa hai danh sách."""
     # Lọc và ánh xạ url -> dict
     data_urls = {item["url"]: item for item in data if "url" in item}
@@ -129,6 +145,74 @@ def _get_data_in_file(
             return None
 
     return data
+
+def _merge_two_records(record2: Dict[str, Any], filename: Optional[str] = None) -> Optional[str]:
+    try:
+        with open(last_file_output, "r", encoding="utf-8") as file:
+            record1 = json.load(file)
+    except Exception as e:
+        print(f"Lỗi khi đọc file đầu vào: {e}")
+        return None
+
+    # Gộp và loại trùng job theo URL
+    job_map = {}
+    for job in record1.get("jobs", []) + record2.get("jobs", []):
+        url = job.get("url")
+        if url:
+            job_map[url] = job  # Nếu trùng URL thì sẽ ghi đè
+
+    jobs = list(job_map.values())
+
+    # Đếm lại sources theo từng job
+    sources = {}
+    for job in jobs:
+        src = job.get("source")
+        if src:
+            sources[src] = sources.get(src, 0) + 1
+
+    # Lấy thời gian tạo mới nhất
+    meta1 = record1.get("metadata", {})
+    meta2 = record2.get("metadata", {})
+    created_at = max(
+        meta1.get("created_at", "1970-01-01"),
+        meta2.get("created_at", "1970-01-01"),
+        key=lambda x: datetime.fromisoformat(x)
+    )
+
+    # Tổng số jobs
+    total_jobs = len(jobs)
+
+    # Tổng thời gian thực thi
+    execution_time = meta1.get("execution_time", 0.0) + meta2.get("execution_time", 0.0)
+
+    # Tạo kết quả đầu ra
+    output = {
+        "metadata": {
+            "total_jobs": total_jobs,
+            "created_at": created_at,
+            "execution_time": execution_time,
+            "sources": sources
+        },
+        "jobs": jobs
+    }
+
+    # Ghi ra file
+    if not filename:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"jobs_{timestamp}.json"
+
+    filepath = os.path.join(output_folder, filename)
+
+    try:
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(output, f, ensure_ascii=False, indent=2)
+            f.flush()
+            os.fsync(f.fileno())
+        print(f"✅ Đã gộp và loại job trùng, file: {filepath}")
+        return filepath
+    except Exception as e:
+        print(f"❌ Lỗi ghi file: {e}")
+        return None
 
 # if __name__ == '__main__':
 #     data = get_data_in_file()
