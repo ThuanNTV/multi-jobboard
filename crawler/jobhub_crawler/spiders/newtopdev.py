@@ -8,6 +8,7 @@ from typing import Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from jobhub_crawler.core.base_crawler import BaseCrawler
 from jobhub_crawler.core.job_item import JobItem
+from jobhub_crawler.utils.notifier import _send_telegram_message
 from jobhub_crawler.utils.check import _get_data_in_file, _find_diff_dict
 from jobhub_crawler.utils.helpers import _scroll_to_bottom
 
@@ -48,6 +49,7 @@ class NewTopDevSpider(BaseCrawler):
     def run(self):
         """Execute the crawler to collect job listings from TopDev"""
         try:
+            _send_telegram_message('', f'Starting TopDev crawler with {self.max_workers} workers!', '', '', '')
             self.logger.info(f"Starting TopDev crawler with {self.max_workers} workers")
 
             # Initial page content is loaded via Selenium with _scroll_to_bottom in _extract_job_listings
@@ -77,9 +79,9 @@ class NewTopDevSpider(BaseCrawler):
                         self.logger.error(f"Lỗi khi xử lý {url['url']}: {str(e)}")
 
             self.logger.info(f"Finished crawling. Collected {len(new_urls)} job url record")
+            _send_telegram_message('', f'Finished crawling. Collected {len(self.jobs)} job url record!', '', '', '')
         except Exception as e:
             self.logger.error(f"Error during crawling: {str(e)}")
-
         return self.jobs
 
     def _extract_job_listings(self, soup):
@@ -134,7 +136,7 @@ class NewTopDevSpider(BaseCrawler):
             card_job_header = card_job.find('section', id='detailJobHeader')
             job_title = card_job_header.find('h1').text.strip()
             company_name = card_job_header.find('p').text.strip()
-            location = card_job_header.find("div", {"data-testid": "flowbite-tooltip"}).text.strip()
+            location = [card_job_header.find("div", {"data-testid": "flowbite-tooltip"}).text.strip()]
 
             card_job_middle = card_job_header.find_next_sibling('section')
             time_text = card_job_middle.find(string=lambda t: "Posted" in t).parent.get_text()

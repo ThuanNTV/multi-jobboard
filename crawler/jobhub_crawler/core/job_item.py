@@ -5,10 +5,10 @@ from typing import List, Optional
 class JobItem:
     title: str
     company: str
-    location: str
+    location: Optional[str]
     salary: Optional[str]
     posted_at: Optional[str]
-    experience: str
+    experience: Optional[str]
     level: Optional[str]
     tags: List[str]
     url: str

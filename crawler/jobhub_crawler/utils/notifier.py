@@ -10,7 +10,7 @@ CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 logger = logging.getLogger(__name__)
 
 
-def _send_telegram_message(crawl_time, file_path, total_records, elapsed_time, error_count):
+def _send_telegram_message(crawl_time=None, file_path=None, total_records=None, elapsed_time=None, error_count=None):
     if crawl_time == "":
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         payload = {
@@ -33,7 +33,7 @@ def _send_telegram_message(crawl_time, file_path, total_records, elapsed_time, e
             ✅ Tổng số bản ghi: *{total_records}*
 
             ⚙️ Thông tin bổ sung:
-            - Thời gian chạy: {elapsed_time:.2f} giây
+            - Thời gian chạy: {elapsed_time} giây
             - Số lỗi phát sinh: {error_count}
 
             💡 Lưu ý:
@@ -53,6 +53,7 @@ def _send_telegram_message(crawl_time, file_path, total_records, elapsed_time, e
     else:
         print("❌ Gửi Telegram lỗi:", response.text)
         logger.error(f"❌ Gửi Telegram lỗi: {response.text}")
+    return None
 
 
 def _send_telegram_file(file_path):
@@ -66,3 +67,5 @@ def _send_telegram_file(file_path):
 
     else:
         logger.error(f"❌ Gửi file lỗi: {response.text}")
+
+    return None

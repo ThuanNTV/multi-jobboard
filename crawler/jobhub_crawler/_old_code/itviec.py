@@ -16,7 +16,7 @@ from jobhub_crawler.utils.helpers import _wait_for_element, _get_total_page, _cl
 class ItViecSpider(BaseCrawler):
     """Trình thu thập (Spider) danh sách việc làm từ ItViec.com có khả năng vượt qua bảo mật Cloudflare"""
 
-    def __init__(self, headless=False, max_workers=5, use_undetected=True):
+    def __init__(self, headless=True, max_workers=5, use_undetected=True):
         """
         Khởi tạo spider ItViec với khả năng vượt qua bảo mật Cloudflare
 
@@ -99,11 +99,8 @@ class ItViecSpider(BaseCrawler):
                 last_page_number = _get_total_page(self,
                                                    '//div[@class="page" or contains(@class, "pagination")][last()]')
 
-                current_url = ''
                 # Thực hiện chạy qua từng trang
                 for page in range(1, last_page_number + 1):
-
-                    _wait_for_page_load(self, current_url)
 
                     self.logger.info(f"Processing page {page}/{last_page_number}")
 
@@ -119,6 +116,7 @@ class ItViecSpider(BaseCrawler):
 
                     # thực hiện lấy dữ liệu
                     for job_card in job_cards:
+                        # 'https://itviec.com/it-jobs/manager-lead-devops-mis-nab-innovation-centre-vietnam-0656?lab_feature=preview_jd_page'
                         success = self.extract_job_details(job_card)
                         if success:
                             self.logger.info("Trích xuất job thành công")
