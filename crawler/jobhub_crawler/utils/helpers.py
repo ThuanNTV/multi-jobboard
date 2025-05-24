@@ -1,5 +1,7 @@
+import os
 import time
 import random
+from pathlib import Path
 from selenium.common import TimeoutException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -16,6 +18,72 @@ def _remove_duplicates(tags: list[str]) -> list[str]:
             unique_tags.append(tag)
     return unique_tags
 
+def _find_project_root(start: Path) -> Path:
+    for parent in start.resolve().parents:
+        if (parent / "clawler").exists() or (parent / ".git").exists():
+            return parent
+    return start
+
+def _find_folder(foldername, search_dir):
+    """
+    Tìm thư mục theo tên trong một cây thư mục
+
+    Args:
+        foldername (str): Tên thư mục cần tìm
+        search_dir (str): Thư mục gốc để bắt đầu tìm kiếm
+
+    Returns:
+        str | None: Đường dẫn tuyệt đối nếu tìm thấy, ngược lại trả về None
+    """
+    for root, dirs, files in os.walk(search_dir):
+        if foldername in dirs:
+            return os.path.join(root, foldername)
+    return None
+
+def _find_file(filename, search_dir="output"):
+    """
+    Tìm file theo tên trong thư mục (mặc định là 'output/')
+
+    Args:
+        filename (str): Tên file cần tìm (ví dụ: "jobs_20250522_090000.json")
+        search_dir (str): Thư mục cần tìm (mặc định là "output")
+
+    Returns:
+        str | None: Đường dẫn đầy đủ nếu tìm thấy, ngược lại trả về None
+    """
+    for root, dirs, files in os.walk(search_dir):
+        if filename in files:
+            return os.path.join(root, filename)
+    return None
+
+def _find_latest_file(search_dir="output", suffix=".json") -> str | None:
+    """
+    Tìm file mới nhất (dựa vào thời gian chỉnh sửa) trong thư mục search_dir.
+
+    Args:
+        search_dir (str): Thư mục cần tìm (mặc định: 'output')
+        suffix (str): Đuôi file cần lọc (mặc định: '.json')
+
+    Returns:
+        str | None: Đường dẫn file mới nhất nếu có, ngược lại trả về None
+    """
+    path_dir = Path(search_dir)
+    if not path_dir.exists():
+        print(f"❌ Thư mục '{search_dir}' không tồn tại.")
+        return None
+
+    files = list(path_dir.glob(f"*{suffix}"))
+    if not files:
+        print(f"📭 Không tìm thấy file {suffix} trong thư mục {search_dir}")
+        return None
+
+    # Sắp xếp theo thời gian chỉnh sửa
+    latest_file = max(files, key=lambda f: f.stat().st_mtime)
+    print(f"✅ File mới nhất: {latest_file.name}")
+    return str(latest_file)
+
+
+# helpers selemium
 def _refresh(self):
     """Refresh the current page and wait for it to load"""
     try:
@@ -23,6 +91,7 @@ def _refresh(self):
         time.sleep(3)  # Wait for the page to reload
     except Exception as e:
         self.logger.error(f"Error refreshing page: {str(e)}")
+
 
 def _scroll_to_bottom(driver, delay=2, max_attempts=10):
     """
@@ -93,6 +162,7 @@ def _wait_for_element(self, by, selector, timeout=20, retries=2):
             else:
                 return []
 
+
 def _get_total_page(self, selector):
     """
     Get total number of pages from pagination element
@@ -108,6 +178,7 @@ def _get_total_page(self, selector):
         elements = _wait_for_element(self, By.XPATH, selector)
 
         if not elements:
+            self.driver.save_screenshot("pagination_elements.png")
             self.logger.warning("Could not find pagination elements, defaulting to 1 page")
             return 1
 
@@ -159,7 +230,7 @@ def _get_total_page(self, selector):
         return 1
 
 
-def _click_next_button(self, selector, page_number, last_page_number ,wait_after_click=True, max_wait_time=10):
+def _click_next_button(self, selector, page_number, last_page_number, wait_after_click=True, max_wait_time=10):
     """
     Click the next page button with enhanced error handling and validation
 

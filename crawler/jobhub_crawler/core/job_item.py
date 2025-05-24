@@ -8,6 +8,8 @@ class JobItem:
     location: str
     salary: Optional[str]
     posted_at: Optional[str]
+    experience: str
+    level: Optional[str]
     tags: List[str]
     url: str
     source: str
