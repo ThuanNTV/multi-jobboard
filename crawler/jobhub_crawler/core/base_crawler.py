@@ -45,6 +45,7 @@ class BaseCrawler:
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument("--disable-gpu")
+            chrome_options.add_argument("--enable-unsafe-swiftshader")
             chrome_options.add_argument("--disable-extensions")
 
             # Set window size
@@ -72,6 +73,7 @@ class BaseCrawler:
             options = uc.ChromeOptions()
 
             # Add options for undetected_chromedriver
+            options.add_argument("--enable-unsafe-swiftshader")
             options.add_argument("--disable-blink-features=AutomationControlled")
             options.add_argument("--disable-extensions")
             options.add_argument("--no-sandbox")
