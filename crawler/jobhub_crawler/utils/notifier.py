@@ -14,13 +14,18 @@ def _send_telegram_message(crawl_time=None, file_path=None, total_records=None, 
     """Gửi tin nhắn thông báo trạng thái crawl đến Telegram"""
 
     # Kiểm tra nếu có lỗi cần gửi thông báo riêng
-    if crawl_time == "":
+    if crawl_time == "" and file_path and error_count:
         message = f"""
         🚨 *Lỗi xảy ra khi crawl!*
 
         🔴 Tên file: `{file_path}`
         ⚠️ Lỗi xảy ra: {error_count} lỗi!
         """
+    elif crawl_time == "" and file_path and error_count == "":
+        message = f"""
+                 * Thông báo !*
+                     `{file_path}`
+                """
     else:
         # Tin nhắn thông báo thành công
         message = f"""
