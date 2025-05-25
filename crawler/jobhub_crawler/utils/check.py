@@ -208,10 +208,8 @@ def _merge_two_records(record2: Dict[str, Any], filename: Optional[str] = None) 
             json.dump(output, f, ensure_ascii=False, indent=2)
             f.flush()
             os.fsync(f.fileno())
-        print(f"✅ Đã gộp và loại job trùng, file: {filepath}")
         return filepath
     except Exception as e:
-        print(f"❌ Lỗi ghi file: {e}")
         return None
 
 # if __name__ == '__main__':
