@@ -158,7 +158,7 @@ class JobRunner:
         metadata = {
             "total_jobs": len(data),
             "created_at": datetime.now().isoformat(),
-            "execution_time": self.end_time - self.start_time if self.end_time and self.start_time else None,
+            "execution_time": self.end_time - self.start_time if self.end_time and self.start_time else 0.0,
             "sources": self._get_job_sources()
         }
 
@@ -211,7 +211,11 @@ class JobRunner:
         stats["unique_companies"] = len(companies)
 
         # Count unique locations
-        locations = set(job.location for job in self.jobs if job.location)
+        locations = set(
+            ", ".join(job.location) if isinstance(job.location, list) else job.location
+            for job in self.jobs if job.location
+        )
+
         stats["unique_locations"] = len(locations)
 
         # Get top tags
