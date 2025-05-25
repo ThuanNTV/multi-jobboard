@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import time
 import logging
@@ -12,6 +13,7 @@ from jobhub_crawler.spiders.newitviec import NewItViecSpider
 
 from jobhub_crawler.utils.check import _open_and_read_file, _merge_two_records
 from jobhub_crawler.utils.notifier import _send_telegram_message, _send_telegram_file
+
 
 # Config logging
 logging.basicConfig(filename='crawler.log', level=logging.INFO,
@@ -67,8 +69,8 @@ def run_crawler():
     crawl_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     runner = JobRunner()
     runner.run_all([
-    #     # VietnamworksSpider
-    #     NewTopDevSpider,
+        #     # VietnamworksSpider
+        NewTopDevSpider,
         NewItViecSpider
     ])
     try:
@@ -76,16 +78,18 @@ def run_crawler():
         _send_telegram_message('', 'Đang đọc file!', '', '', '')
 
         total_jobs = runner.get_stats().get('total_jobs', 0)
-        if total_jobs > 1:
+        if total_jobs >= 1:
             file_path = runner.save_results()
             data = _open_and_read_file(file_path, "metadata", "")
 
-            if data['total_jobs'] > 1:
+            if data['total_jobs'] >= 1:
+                _send_telegram_message('', 'Đang đọc gộp file!', '', '', '')
                 send_crawler_status(crawl_time, file_path, data)
                 handle_merge(file_path)
             else:
                 send_crawler_status('', f'record:{data['total_jobs']}', data)
-
+        else:
+            _send_telegram_message('', 'Không có thay đổi trong file!', '', '', '')
     except Exception as e:
         error_msg = f'❌ Có lỗi xảy ra khi crawl:\n{str(e)}\n{traceback.format_exc()}'
         logging.error(f'{error_msg}')
@@ -93,12 +97,15 @@ def run_crawler():
 
 
 def main():
-    """Main loop to run the crawler at intervals."""
-    while True:
-        logging.info('Start crawling...')
-        run_crawler()
-        logging.info("⏳ Đợi %d giây rồi chạy lại...", INTERVAL_SECONDS)
-        time.sleep(INTERVAL_SECONDS)
+    """Run one crawler cycle and restart process after interval."""
+    logging.info('🚀 Start crawling...')
+    run_crawler()
+    logging.info("✅ Crawling finished. ⏳ Đợi %d giây rồi khởi động lại...", INTERVAL_SECONDS)
+    time.sleep(INTERVAL_SECONDS)
+
+    # Restart the current script
+    logging.info("🔁 Restarting script...")
+    os.execv(sys.executable, [sys.executable] + sys.argv)
 
 
 if __name__ == '__main__':
