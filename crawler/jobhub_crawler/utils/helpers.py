@@ -9,6 +9,32 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 # simple
+
+def _chunk_pages(self, total, workers):
+    if total < 1 or workers < 1:
+        return []
+
+    # Nếu tổng số trang ít hơn số worker → chia từng trang cho từng worker
+    if total <= workers:
+        return [(i + 1, i + 1) for i in range(total)]
+
+    chunk = total // workers
+    remainder = total % workers
+
+    result = []
+    current = 1
+    for i in range(workers):
+        start = current
+        end = start + chunk - 1
+        if remainder > 0:
+            end += 1
+            remainder -= 1
+        result.append((start, end))
+        current = end + 1
+
+    return result
+
+
 def _remove_duplicates(tags: list[str]) -> list[str]:
     """Loại bỏ phần tử trùng lặp nhưng giữ nguyên thứ tự xuất hiện đầu tiên."""
     seen = set()
@@ -61,6 +87,15 @@ def _find_file(filename, search_dir="output"):
     return None
 
 
+def _get_file(foldername, suffix):
+    project_root = _find_project_root(Path(__file__))
+    js_folder = _find_folder(foldername, search_dir=project_root)
+    find_stealth_file = _find_latest_file(search_dir=js_folder, suffix=suffix)
+    if find_stealth_file:
+        return find_stealth_file
+    return None
+
+
 def _find_latest_file(search_dir="output", suffix=".json") -> str | None:
     """
     Tìm file mới nhất (dựa vào thời gian chỉnh sửa) trong thư mục search_dir.
@@ -74,17 +109,17 @@ def _find_latest_file(search_dir="output", suffix=".json") -> str | None:
     """
     path_dir = Path(search_dir)
     if not path_dir.exists():
-        print(f"❌ Thư mục '{search_dir}' không tồn tại.")
+        # print(f"❌ Thư mục '{search_dir}' không tồn tại.")
         return None
 
     files = list(path_dir.glob(f"*{suffix}"))
     if not files:
-        print(f"📭 Không tìm thấy file {suffix} trong thư mục {search_dir}")
+        # print(f"📭 Không tìm thấy file {suffix} trong thư mục {search_dir}")
         return None
 
     # Sắp xếp theo thời gian chỉnh sửa
     latest_file = max(files, key=lambda f: f.stat().st_mtime)
-    print(f"✅ File mới nhất: {latest_file.name}")
+    # print(f"✅ File mới nhất: {latest_file.name}")
     return str(latest_file)
 
 
@@ -146,26 +181,47 @@ def _find_page_number(driver, xpath, delay=2):
         return 1
 
 
-def _wait_for_element(self, by, selector, timeout=20, retries=2):
-    """Enhanced wait for elements with retry mechanism"""
+def _wait_for_element(self, by, selector, timeout=20, retries=2, raise_on_fail=False):
+    """Enhanced wait for elements with retry mechanism and detailed logging"""
     for attempt in range(retries):
         try:
             elements = WebDriverWait(self.driver, timeout).until(
                 EC.presence_of_all_elements_located((by, selector))
             )
             return elements
-        except TimeoutException:
-            self.logger.warning(f"Timeout waiting for {selector} (attempt {attempt + 1}/{retries})")
-            if attempt < retries - 1:
-                time.sleep(2)
-            else:
-                return []
         except Exception as e:
-            self.logger.error(f"Error finding element {selector}: {str(e)}")
+            self.logger.warning(
+                f"[WAIT ERROR] ({by}, '{selector}') failed on attempt {attempt + 1}/{retries} "
+                f"| Error: {str(e)} | URL: {self.driver.current_url}"
+            )
             if attempt < retries - 1:
                 time.sleep(2)
             else:
+                if raise_on_fail:
+                    raise TimeoutException(f"Element ({by}, '{selector}') not found after {retries} attempts")
                 return []
+    return None
+
+
+def _wait_for_element_with_driver(driver, by, selector, timeout=20, retries=2, raise_on_fail=False, logger=None):
+    for attempt in range(retries):
+        try:
+            elements = WebDriverWait(driver, timeout).until(
+                EC.presence_of_all_elements_located((by, selector))
+            )
+            return elements
+        except Exception as e:
+            if logger:
+                logger.warning(
+                    f"[WAIT ERROR] ({by}, '{selector}') attempt {attempt + 1}/{retries} | Error: {str(e)} | URL: {driver.current_url}"
+                )
+            if attempt < retries - 1:
+                time.sleep(2)
+            else:
+                if raise_on_fail:
+                    raise TimeoutException(f"Element ({by}, '{selector}') not found after {retries} attempts")
+                return []
+    return None
 
 
 def _get_total_page(self, selector):
@@ -183,7 +239,6 @@ def _get_total_page(self, selector):
         elements = _wait_for_element(self, By.XPATH, selector)
 
         if not elements:
-            self.driver.save_screenshot("pagination_elements.png")
             self.logger.warning("Could not find pagination elements, defaulting to 1 page")
             return 1
 

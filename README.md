@@ -68,7 +68,8 @@ apt update && apt install -y python3-venv
 python3 -m venv .venv
 
 # Kích hoạt môi trường ảo
-source .venv/bin/activate
+source .venv/bin/activate # Ubuntu
+.venv\Scripts\activate  # Windows
 
 # Cài requirements
 pip install -r requirements.txt

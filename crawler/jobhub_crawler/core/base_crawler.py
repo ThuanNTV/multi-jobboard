@@ -7,6 +7,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import undetected_chromedriver as uc
 
+from jobhub_crawler.utils.helpers import _get_file
 
 class BaseCrawler:
     def __init__(self, headless=True, user_agent=None, window_size=(1920, 1080), timeout=30, use_undetected=False):
@@ -45,6 +46,7 @@ class BaseCrawler:
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument("--disable-gpu")
+            chrome_options.add_argument("--enable-unsafe-swiftshader")
             chrome_options.add_argument("--disable-extensions")
 
             # Set window size
@@ -72,6 +74,7 @@ class BaseCrawler:
             options = uc.ChromeOptions()
 
             # Add options for undetected_chromedriver
+            options.add_argument("--enable-unsafe-swiftshader")
             options.add_argument("--disable-blink-features=AutomationControlled")
             options.add_argument("--disable-extensions")
             options.add_argument("--no-sandbox")
@@ -91,6 +94,7 @@ class BaseCrawler:
             # Initialize the undetected ChromeDriver
             self.driver = uc.Chrome(options=options)
 
+            self._inject_stealth_js()
             # Set page load timeout
             self.driver.set_page_load_timeout(self.timeout)
 
@@ -98,6 +102,21 @@ class BaseCrawler:
         except Exception as e:
             self.logger.error(f"Error initializing undetected ChromeDriver: {str(e)}")
             raise
+
+    def _inject_stealth_js(self):
+        js_file = _get_file('js', 'stealth.min.js')
+
+        # Đọc nội dung file stealth.min.js
+        with open(js_file, "r", encoding="utf-8") as f:
+            stealth_script = f.read()
+
+        # Dùng DevTools Protocol để inject
+        self.driver.execute_cdp_cmd(
+            'Page.addScriptToEvaluateOnNewDocument',
+            {
+                'source': stealth_script
+            }
+        )
 
     def get(self, url, wait_time=0, bypass_cloudflare=False):
         """
