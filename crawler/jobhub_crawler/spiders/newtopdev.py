@@ -10,7 +10,7 @@ from jobhub_crawler.core.base_crawler import BaseCrawler
 from jobhub_crawler.core.job_item import JobItem
 from jobhub_crawler.utils.notifier import _send_telegram_message
 from jobhub_crawler.utils.check import _get_data_in_file, _find_diff_dict
-from jobhub_crawler.utils.helpers import _scroll_to_bottom
+from jobhub_crawler.utils.helpers import _scroll_to_bottom, _remove_duplicates
 
 
 # TODO: clean code, tối ưu lại, phân hàm rõ ràng, chỉnh sửa lại lấy dũ liệu còn thiếu, ghi chú tiếng việt
@@ -18,7 +18,7 @@ from jobhub_crawler.utils.helpers import _scroll_to_bottom
 class NewTopDevSpider(BaseCrawler):
     """Spider for crawling job listings from TopDev.vn using BeautifulSoup and multi-threading"""
 
-    def __init__(self, headless=False, max_workers=5, delay=2, max_attempts=5):
+    def __init__(self, headless=True, max_workers=5, delay=2, max_attempts=5):
         """
         Initialize the TopDev spider
 
@@ -31,6 +31,7 @@ class NewTopDevSpider(BaseCrawler):
 
         self.jobs = []
         self.urls = []
+        self.error_count = 0
         self.base_url = "https://topdev.vn/viec-lam-it"
         self.logger = logging.getLogger(__name__)
         self.session = requests.Session()
@@ -49,8 +50,8 @@ class NewTopDevSpider(BaseCrawler):
     def run(self):
         """Execute the crawler to collect job listings from TopDev"""
         try:
-            _send_telegram_message('', f'Starting TopDev crawler with {self.max_workers} workers!', '', '', '')
             self.logger.info(f"Starting TopDev crawler with {self.max_workers} workers")
+            _send_telegram_message('', f'Starting TopDev crawler with {self.max_workers} workers!', '', '', '')
 
             # Initial page content is loaded via Selenium with _scroll_to_bottom in _extract_job_listings
 
@@ -61,25 +62,69 @@ class NewTopDevSpider(BaseCrawler):
             # find_diff_urls
             old_url = _get_data_in_file()
             new_urls = _find_diff_dict(old_url, job_urls)
+            if new_urls and len(new_urls) >= 1:
 
-            self.logger.info(f"Fetching descriptions for {len(new_urls)} jobs using {self.max_workers} threads")
+                failed_urls = []
+                self.logger.info(f"Fetching descriptions for {len(new_urls)} jobs using {self.max_workers} threads")
 
-            # Dùng ThreadPoolExecutor để chạy đa luồng
-            with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-                # Tạo map future -> url
-                future_to_url = {executor.submit(self._fetch_job_description, url): url for url in new_urls}
+                # Dùng ThreadPoolExecutor để chạy đa luồng
+                with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                    # Tạo map future -> url
+                    future_to_url = {executor.submit(self._fetch_job_description, url): url for url in new_urls}
 
-                for future in as_completed(future_to_url):
-                    url = future_to_url[future]
-                    try:
-                        result = future.result()
-                        if result:
-                            self.jobs.append(result)
-                    except Exception as e:
-                        self.logger.error(f"Lỗi khi xử lý {url['url']}: {str(e)}")
+                    for future in as_completed(future_to_url):
+                        url = future_to_url[future]
+                        try:
+                            result = future.result()
+                            if result:
+                                self.jobs.append(result)
+                        except Exception as e:
+                            self.logger.error(f"Lỗi khi xử lý {url['url']}: {str(e)}")
+                            self.error_count += 1
+                            failed_urls.append(url)
 
-            self.logger.info(f"Finished crawling. Collected {len(new_urls)} job url record")
-            _send_telegram_message('', f'Finished crawling. Collected {len(self.jobs)} job url record!', '', '', '')
+                if self.error_count >= 1:
+                    _send_telegram_message('',
+                                           f'Finished crawling TopDev. Collected {len(self.jobs)} job descriptions!',
+                                           '', '',
+                                           f'{self.error_count}')
+
+                    # Thử lại các URL bị lỗi nếu có
+                if failed_urls:
+                    failed_urls = _remove_duplicates(failed_urls)
+                    _send_telegram_message('', f'thử lấy lại dữ liệu của {len(failed_urls)} job descriptions!', '',
+                                           '',
+                                           f'{self.error_count}')
+                    self.error_count = 0
+                    self.logger.info(f"Retrying {len(failed_urls)} failed URLs...")
+                    with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                        future_to_url = {
+                            executor.submit(self._fetch_job_description, url): url for url in failed_urls
+                        }
+
+                        for future in as_completed(future_to_url):
+                            url_obj = future_to_url[future]
+                            try:
+                                result = future.result()
+                                if result:
+                                    self.jobs.append(result)
+                            except Exception as e:
+                                self.logger.error(f"❌ Lỗi khi xử lý lại {url_obj['url']}: {str(e)}")
+                                self.error_count += 1
+                if self.error_count >= 1:
+                    _send_telegram_message('',
+                                           f'Finished crawling TopDev. Collected {len(self.jobs)} job descriptions!',
+                                           '', '',
+                                           f'{self.error_count}')
+                else:
+                    self.logger.info(f"Finished crawling TopDev. Collected {len(new_urls)} job url record")
+                    _send_telegram_message('', f'Finished crawling TopDev. Collected {len(self.jobs)} job url record!',
+                                           '',
+                                           '',
+                                           '')
+            else:
+                self.logger.info("No new URLs to process.")
+                return self.jobs
         except Exception as e:
             self.logger.error(f"Error during crawling: {str(e)}")
         return self.jobs

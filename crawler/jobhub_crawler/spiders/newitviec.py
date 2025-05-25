@@ -1,3 +1,4 @@
+import time
 import requests
 import threading
 import undetected_chromedriver as uc
@@ -27,15 +28,17 @@ class ChromeDriverPool:
                 options.add_argument('--headless=new')
             options.add_argument('--no-sandbox')
             options.add_argument('--disable-blink-features=AutomationControlled')
-
-            # Tắt auto-patching để tránh lỗi rename file
+            options.add_argument("--disable-gpu")
+            options.add_argument("--disable-software-rasterizer")
+            options.add_argument("--disable-dev-shm-usage")
+            # options.add_argument("--single-process")
             return uc.Chrome(options=options, use_subprocess=False)
 
 
 class NewItViecSpider(BaseCrawler):
     '''Trình thu thập (Spider) danh sách việc làm từ ItViec.com '''
 
-    def __init__(self, headless=False, max_workers=5, use_undetected=True):
+    def __init__(self, headless=False, max_workers=2, use_undetected=True):
         """
         Khởi tạo spider ItViec với khả năng vượt qua bảo mật Cloudflare
 
@@ -69,6 +72,7 @@ class NewItViecSpider(BaseCrawler):
 
         self.jobs = []
         self.urls = []
+        self.error_count = 0
         self.lock = threading.Lock()
         self.base_url = "https://itviec.com/it-jobs"
         self.session = requests.Session()
@@ -93,8 +97,8 @@ class NewItViecSpider(BaseCrawler):
 
     def run(self):
         '''Thực thi trình thu thập để lấy danh sách việc làm từ ItViec, đa luồng vượt Cloudflare.'''
-        _send_telegram_message('', f'Starting ItViec crawler with {self.max_workers} threads!', '', '', '')
         self.logger.info(f'🚀 Starting ItViec crawler with {self.max_workers} threads...')
+        _send_telegram_message('', f'Starting ItViec crawler with {self.max_workers} threads!', '', '', '')
 
         self.get(self.base_url)
 
@@ -107,8 +111,8 @@ class NewItViecSpider(BaseCrawler):
         for cookie in selenium_cookies:
             self.session.cookies.set(cookie['name'], cookie['value'])
 
-        total_pages = _get_total_page(self, '//div[@class="page" or contains(@class, "pagination")][last()]')
-        # total_pages = 1
+        # total_pages = _get_total_page(self, '//div[@class="page" or contains(@class, "pagination")][last()]')
+        total_pages = 5
 
         self.quit()
 
@@ -117,26 +121,66 @@ class NewItViecSpider(BaseCrawler):
         job_urls = self._result_crawl_url(page_ranges)
         old_url = _get_data_in_file()
         new_urls = _find_diff_dict(old_url, job_urls)
+        if new_urls and len(new_urls) >= 1:
+            self.logger.info(f"Fetching descriptions for {len(new_urls)} jobs using {self.max_workers} threads")
 
-        self.logger.info(f"Fetching descriptions for {len(new_urls)} jobs using {self.max_workers} threads")
+            # Danh sách để lưu các URL có lỗi
+            failed_urls = []
 
-        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            # Tạo map future -> url
-            future_to_url = {
-                executor.submit(self._fetch_job_description, url): url for url in new_urls
-            }
+            with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                future_to_url = {
+                    executor.submit(self._fetch_job_description_with_retry, url, retries=3, delay=2): url for url in
+                    new_urls
+                }
 
-            for future in as_completed(future_to_url):
-                url_str = future_to_url[future]
-                try:
-                    result = future.result()
-                    if result:
-                        self.jobs.append(result)
-                except Exception as e:
-                    self.logger.error(f"Lỗi khi xử lý {url_str['url']}: {str(e)}")
+                for future in as_completed(future_to_url):
+                    url_obj = future_to_url[future]
+                    try:
+                        result = future.result()
+                        if result:
+                            self.jobs.append(result)
+                    except Exception as e:
+                        self.logger.error(f"❌ Lỗi khi xử lý {url_obj['url']}: {str(e)}")
+                        failed_urls.append(url_obj)  # Thêm vào danh sách failed URLs
+                        self.error_count += 1
+            if self.error_count >= 1:
+                _send_telegram_message('', f'Finished crawling ItViec. Collected {len(self.jobs)} job descriptions!', '', '',
+                                   f'{self.error_count}')
 
-        self.logger.info(f"Finished crawling. Collected {len(new_urls)} job url record")
-        _send_telegram_message('', f'Finished crawling. Collected {len(self.jobs)} job url record!', '', '', '')
+            # Thử lại các URL bị lỗi nếu có
+            if failed_urls:
+                _send_telegram_message('', f'thử lấy lại dữ liệu của {len(failed_urls)} job descriptions!', '', '',
+                                       f'{self.error_count}')
+                failed_urls = _remove_duplicates(failed_urls)
+                self.error_count = 0
+                self.logger.info(f"Retrying {len(failed_urls)} failed URLs...")
+                with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                    future_to_url = {
+                        executor.submit(self._fetch_job_description_with_retry, url, retries=3, delay=2): url for url in
+                        failed_urls
+                    }
+
+                    for future in as_completed(future_to_url):
+                        url_obj = future_to_url[future]
+                        try:
+                            result = future.result()
+                            if result:
+                                self.jobs.append(result)
+                        except Exception as e:
+                            self.logger.error(f"❌ Lỗi khi xử lý lại {url_obj['url']}: {str(e)}")
+                            self.error_count += 1
+
+            self.logger.info(f"Finished crawling. Collected {len(self.jobs)} job descriptions.")
+            if self.error_count >= 1:
+                _send_telegram_message('', f'Finished crawling ItViec. Collected {len(self.jobs)} job descriptions!',
+                                       '', '',
+                                       f'{self.error_count}')
+            else:
+                _send_telegram_message('', f'Finished crawling ItViec. Collected {len(self.jobs)} job descriptions!',
+                                       '', '', '')
+        else:
+            self.logger.info("No new URLs to process.")
+            return self.jobs
         return self.jobs
 
     def _result_crawl_url(self, page_ranges):
@@ -297,3 +341,20 @@ class NewItViecSpider(BaseCrawler):
 
         finally:
             driver.quit()
+
+    def _fetch_job_description_with_retry(self, url_obj, retries=3, delay=2):
+        """Hàm xử lý job với cơ chế thử lại khi có lỗi."""
+        attempt = 0
+        while attempt < retries:
+            try:
+                result = self._fetch_job_description(url_obj)
+                return result
+            except Exception as e:
+                attempt += 1
+                self.logger.error(f"❌ Lỗi khi xử lý {url_obj['url']} (Thử lại {attempt}/{retries}): {str(e)}")
+                if attempt < retries:
+                    time.sleep(delay)  # Chờ một chút trước khi thử lại
+                else:
+                    self.error_count += 1
+                    return None  # Nếu đã thử hết các lần mà vẫn không được, trả về None
+        return None
