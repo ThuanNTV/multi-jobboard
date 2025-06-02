@@ -10,8 +10,10 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-API_URL = f"https://api.telegram.org/bot{TOKEN}"
-FILE_API_URL = f"https://api.telegram.org/file/bot{TOKEN}"
+YOUR_WORKER_URL = 'connect-tele.thuanntv013.workers.dev'
+
+API_URL = f'https://{YOUR_WORKER_URL}/bot{TOKEN}'
+FILE_API_URL = f"https://{YOUR_WORKER_URL}/file/bot{TOKEN}"
 
 # Khởi tạo
 DOWNLOAD_DIR = "downloads"
