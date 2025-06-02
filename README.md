@@ -74,13 +74,18 @@ source .venv/bin/activate # Ubuntu
 # Cài requirements
 pip install -r requirements.txt
 
-#
+# ubuntu
 touch .env
 nano .env
 TELEGRAM_BOT_TOKEN=''
 TELEGRAM_CHAT_ID=''
 
 INTERVAL_SECONDS=3600
+
+# windowns
+New-Item -Path . -Name ".env" -ItemType "File"
+notepad .env
+
 # run
 PYTHONPATH=. python jobhub_crawler/main.py
 

@@ -105,7 +105,7 @@ def main():
 
     # Restart the current script
     logging.info("🔁 Restarting script...")
-    os.execv(sys.executable, [sys.executable] + sys.argv)
+    os.execv(sys.executable, [sys.executable, "-m", "jobhub_crawler.main"])
 
 
 if __name__ == '__main__':
