@@ -8,7 +8,7 @@ from typing import Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from jobhub_crawler.core.base_crawler import BaseCrawler
 from jobhub_crawler.core.job_item import JobItem
-from jobhub_crawler.utils.SeleniumCleaner import SeleniumCleaner
+from jobhub_crawler.utils.SeleniumCleaner import clean_selenium_temp_dirs
 from jobhub_crawler.utils.notifier import _send_telegram_message
 from jobhub_crawler.utils.check import _get_data_in_file, _find_diff_dict
 from jobhub_crawler.utils.helpers import _scroll_to_bottom, _remove_duplicates
@@ -128,7 +128,7 @@ class NewTopDevSpider(BaseCrawler):
                 return self.jobs
         except Exception as e:
             self.logger.error(f"Error during crawling: {str(e)}")
-        SeleniumCleaner.clean_selenium_temp_dirs(self)
+        clean_selenium_temp_dirs()
         return self.jobs
 
     def _extract_job_listings(self, soup):
