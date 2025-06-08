@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from jobhub_crawler.core.job_runner import JobRunner
 from jobhub_crawler.spiders.newtopdev import NewTopDevSpider
 from jobhub_crawler.spiders.newitviec import NewItViecSpider
+from jobhub_crawler.utils.SaveToDatabase import _SaveToData
 
 from jobhub_crawler.utils.check import _open_and_read_file, _merge_two_records
 from jobhub_crawler.utils.notifier import _send_telegram_message, _send_telegram_file
@@ -71,7 +72,7 @@ def run_crawler():
     runner.run_all([
         #     # VietnamworksSpider
         NewTopDevSpider,
-        NewItViecSpider
+        # NewItViecSpider
     ])
     try:
         # Notify start of the crawling process
@@ -100,12 +101,14 @@ def main():
     """Run one crawler cycle and restart process after interval."""
     logging.info('🚀 Start crawling...')
     run_crawler()
-    logging.info("✅ Crawling finished. ⏳ Đợi %d giây rồi khởi động lại...", INTERVAL_SECONDS)
-    time.sleep(INTERVAL_SECONDS)
+    # logging.info("✅ Crawling finished. ⏳ Bắt đầu lưu dữ liệu và DATABASE...")
+    # _SaveToData()
+    # logging.info("✅ Save finished. ⏳ Đợi %d giây rồi khởi động lại...", INTERVAL_SECONDS)
+    # time.sleep(INTERVAL_SECONDS)
 
     # Restart the current script
-    logging.info("🔁 Restarting script...")
-    os.execv(sys.executable, [sys.executable, "-m", "jobhub_crawler.main"])
+    # logging.info("🔁 Restarting script...")
+    # os.execv(sys.executable, [sys.executable, "-m", "jobhub_crawler.main"])
 
 
 if __name__ == '__main__':

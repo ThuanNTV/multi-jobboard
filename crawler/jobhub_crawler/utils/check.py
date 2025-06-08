@@ -9,7 +9,8 @@ from typing import List, Dict, Union, Optional, Any
 from jobhub_crawler.utils.helpers import _find_folder, _find_latest_file, _find_project_root
 
 project_root = _find_project_root(Path(__file__))
-output_folder = _find_folder('output', search_dir=project_root)
+crawler_folder = _find_folder('crawler', search_dir=project_root)
+output_folder = _find_folder('output', search_dir=crawler_folder)
 last_file_output = _find_latest_file(search_dir=output_folder, suffix='.json')
 
 
