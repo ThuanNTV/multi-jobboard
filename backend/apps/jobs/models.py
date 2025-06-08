@@ -4,11 +4,11 @@ from django.db import models
 class JobListing(models.Model):
     title = models.CharField(max_length=255)
     company = models.CharField(max_length=255)
-    location = models.TextField()
+    location = models.JSONField(default=list)
     salary = models.CharField(max_length=100, blank=True,
                               null=True)  # Chuẩn bị cho các dạng salary text như "Sign In to view salary"
     posted_at = models.CharField(max_length=100, blank=True, null=True)  # Lưu nguyên text mô tả đăng tuyển
-    experience = models.CharField(max_length=50, blank=True, null=True)
+    experience = models.JSONField(max_length=50, blank=True, null=True)
     level = models.CharField(max_length=50, blank=True, null=True)
     tags = models.JSONField(default=list)  # Lưu mảng tags/kỹ năng
     url = models.URLField(max_length=500)
