@@ -101,14 +101,14 @@ def main():
     """Run one crawler cycle and restart process after interval."""
     logging.info('🚀 Start crawling...')
     run_crawler()
-    # logging.info("✅ Crawling finished. ⏳ Bắt đầu lưu dữ liệu và DATABASE...")
-    # _SaveToData()
-    # logging.info("✅ Save finished. ⏳ Đợi %d giây rồi khởi động lại...", INTERVAL_SECONDS)
-    # time.sleep(INTERVAL_SECONDS)
+    logging.info("✅ Crawling finished. ⏳ Bắt đầu lưu dữ liệu và DATABASE...")
+    _SaveToData()
+    logging.info("✅ Save finished. ⏳ Đợi %d giây rồi khởi động lại...", INTERVAL_SECONDS)
+    time.sleep(INTERVAL_SECONDS)
 
     # Restart the current script
-    # logging.info("🔁 Restarting script...")
-    # os.execv(sys.executable, [sys.executable, "-m", "jobhub_crawler.main"])
+    logging.info("🔁 Restarting script...")
+    os.execv(sys.executable, [sys.executable, "-m", "jobhub_crawler.main"])
 
 
 if __name__ == '__main__':
