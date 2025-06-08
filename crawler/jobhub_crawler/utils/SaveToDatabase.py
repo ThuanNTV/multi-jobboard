@@ -354,9 +354,9 @@ def _SaveToData():
         traceback.print_exc()
 
 
-if __name__ == '__main__':
-    # _SaveToData()
-    import tempfile
-
-    temp_dir = tempfile.gettempdir()
-    print(f"Đường dẫn TEMP của hệ thống là: {temp_dir}")
+# if __name__ == '__main__':
+#     # _SaveToData()
+#     import tempfile
+#
+#     temp_dir = tempfile.gettempdir()
+#     print(f"Đường dẫn TEMP của hệ thống là: {temp_dir}")
