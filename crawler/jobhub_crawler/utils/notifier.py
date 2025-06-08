@@ -5,8 +5,10 @@ from dotenv import load_dotenv
 
 # Load biến từ .env
 load_dotenv()
+YOUR_WORKER_URL = 'connect-tele.thuanntv013.workers.dev'
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+API_URL = f'https://{YOUR_WORKER_URL}/bot{TELEGRAM_TOKEN}'
 logger = logging.getLogger(__name__)
 
 
@@ -49,7 +51,7 @@ def _send_telegram_message(crawl_time=None, file_path=None, total_records=None, 
         """
 
     # Cấu hình dữ liệu payload cho Telegram
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    url = f"{API_URL}/sendMessage"
     payload = {
         "chat_id": CHAT_ID,
         "text": message,
@@ -69,7 +71,7 @@ def _send_telegram_message(crawl_time=None, file_path=None, total_records=None, 
 
 
 def _send_telegram_file(file_path):
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendDocument"
+    url = f"{API_URL}/sendDocument"
     with open(file_path, 'rb') as f:
         files = {'document': f}
         data = {'chat_id': CHAT_ID}
