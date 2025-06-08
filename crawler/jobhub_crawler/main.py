@@ -11,6 +11,7 @@ from jobhub_crawler.core.job_runner import JobRunner
 from jobhub_crawler.spiders.newtopdev import NewTopDevSpider
 from jobhub_crawler.spiders.newitviec import NewItViecSpider
 from jobhub_crawler.utils.SaveToDatabase import _SaveToData
+from jobhub_crawler.utils.SeleniumCleaner import clean_selenium_temp_dirs
 
 from jobhub_crawler.utils.check import _open_and_read_file, _merge_two_records
 from jobhub_crawler.utils.notifier import _send_telegram_message, _send_telegram_file
@@ -101,7 +102,9 @@ def main():
     """Run one crawler cycle and restart process after interval."""
     logging.info('🚀 Start crawling...')
     run_crawler()
-    logging.info("✅ Crawling finished. ⏳ Bắt đầu lưu dữ liệu và DATABASE...")
+    logging.info("✅ Crawling finished. ⏳ Bắt đầu dọn rác...")
+    clean_selenium_temp_dirs()
+    logging.info("✅ Clean finished. ⏳ Bắt đầu lưu dữ liệu và DATABASE...")
     _SaveToData()
     logging.info("✅ Save finished. ⏳ Đợi %d giây rồi khởi động lại...", INTERVAL_SECONDS)
     time.sleep(INTERVAL_SECONDS)
