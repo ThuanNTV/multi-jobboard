@@ -2,7 +2,6 @@ backend/
 ├── manage.py                   # Entry point chạy lệnh Django như migrate, runserver,...
 ├── requirements.txt            # Thư viện Python cần cài
 ├── .env                       # Biến môi trường (DB, secret key,...)
-
 ├── jobhub/                    # Package cấu hình dự án Django
 │   ├── settings/              # Cấu hình settings phân theo môi trường
 │   │   ├── base.py            # Cấu hình chung dùng cho tất cả môi trường
@@ -11,7 +10,6 @@ backend/
 │   ├── urls.py                # URL chính của dự án, include các app
 │   ├── wsgi.py                # Entry point WSGI server (production)
 │   └── asgi.py                # Entry point ASGI server (WebSocket, async)
-
 ├── apps/                      # Các app chức năng riêng biệt (modular)
 │   ├── jobs/                  # App quản lý đăng tin việc làm
 │   │   ├── migrations/        # Thư mục chứa các file migration DB
@@ -24,12 +22,10 @@ backend/
 │   ├── platforms/             # App quản lý nguồn dữ liệu (crawler,...)
 │   ├── accounts/              # Quản lý user, authentication (optional)
 │   └── common/                # Module tiện ích dùng chung cho toàn hệ thống
-
 ├── core/                      # Logic lõi: helper functions, chuẩn hóa dữ liệu, enum
 │   ├── utils.py               # Các hàm tiện ích tái sử dụng
 │   ├── normalizer.py          # Hàm chuẩn hóa dữ liệu (normalize)
 │   └── enums.py               # Các kiểu enum dùng chung
-
 └── scripts/                   # Scripts chạy thủ công, seed data, import/export,...
     └── run_crawler.py         # Script chạy crawler lấy dữ liệu từ nguồn ngoài
 
