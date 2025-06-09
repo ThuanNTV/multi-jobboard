@@ -318,12 +318,6 @@ def _SaveToData():
         output_folder = _find_folder('output', search_dir=crawler_folder)
         latest_file = _find_latest_file(search_dir=output_folder, suffix='.json')
 
-        # Debug information
-        print(f"Debug - Project root: {project_root}")
-        print(f"Debug - Crawler folder: {crawler_folder}")
-        print(f"Debug - Output folder: {output_folder}")
-        print(f"Debug - Latest file: {latest_file} (type: {type(latest_file)})")
-
         if not latest_file:
             print("❌ No JSON files found in output folder")
             return
@@ -331,8 +325,8 @@ def _SaveToData():
         # Configuration
         config = APIConfig(
             base_url="http://127.0.0.1:8000/api/jobs/",
-            csrf_token="AO6YCWxcc2iWvKody3CgZ4HHaN6RUbaS",
-            session_id="k3b92xqdykakek2t66rnotctgu1wr4wy",
+            csrf_token="5tZGjul5LYJcAAzPnLvuLATBfBh30KYq",
+            session_id="qtsdon9m6q8uzcya7q2h4d8goavqvhc2",
             timeout=30,
             max_retries=3
         )
@@ -354,8 +348,8 @@ def _SaveToData():
         traceback.print_exc()
 
 
-# if __name__ == '__main__':
-#     # _SaveToData()
+if __name__ == '__main__':
+    _SaveToData()
 #     import tempfile
 #
 #     temp_dir = tempfile.gettempdir()

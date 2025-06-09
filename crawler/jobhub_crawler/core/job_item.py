@@ -5,6 +5,7 @@ from typing import List, Optional
 class JobItem:
     title: str
     company: str
+    company_url_img: str
     location: Optional[str]
     salary: Optional[str]
     posted_at: Optional[str]

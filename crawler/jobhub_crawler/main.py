@@ -104,7 +104,7 @@ def main():
     run_crawler()
     logging.info("✅ Crawling finished. ⏳ Bắt đầu dọn rác...")
     clean_selenium_temp_dirs()
-    logging.info("✅ Clean finished. ⏳ Bắt đầu lưu dữ liệu và DATABASE...")
+    logging.info("✅ Clean finished. ⏳ Bắt đầu lưu dữ liệu vào DATABASE...")
     _SaveToData()
     logging.info("✅ Save finished. ⏳ Đợi %d giây rồi khởi động lại...", INTERVAL_SECONDS)
     time.sleep(INTERVAL_SECONDS)

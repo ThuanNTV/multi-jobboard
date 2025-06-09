@@ -222,6 +222,8 @@ function formatContactInfo(text) {
 function highlightKeywords(text) {
   const keywordGroups = {
     tech: [
+      "IoT",
+      "blockchain",
       "RPA tools",
       "data visualization tool",
       "distributions",
@@ -405,6 +407,8 @@ function highlightKeywords(text) {
       "RESTful",
       "OS",
       "Kafka",
+      "Web3",
+      "NFT",
       // Vietnamese keywords
       "giao diện web",
     ],
@@ -507,6 +511,7 @@ function highlightKeywords(text) {
       "nghiên cứu",
       "research",
       "game",
+      "tuổi",
       "cấu trúc dữ liệu và giải thuật",
       "lý thuyết đồ thị",
       "data structures and algorithms",
@@ -548,12 +553,14 @@ function highlightKeywords(text) {
       "Khoa học dữ liệu",
       "Khoa học máy tính",
       "Toán học ứng dụng",
+      "An toàn thông tin",
       "Thạc sĩ",
       "Cử nhân",
       "Kỹ sư",
       "Kỹ sư phần mềm",
       "Kỹ sư hệ thống",
       "Kỹ sư mạng",
+      "Toefl",
     ],
   };
 
@@ -674,7 +681,12 @@ async function loadJobDetail() {
         <div class="job-header">
           <div class="job-title-section">
             <h1>Chi tiết công việc</h1>
-            <h1 class="job-title">${title}</h1>
+            
+            <div class="job-company">
+              <img src="${
+                job.company_url_img || "default-logo.png"
+              }" alt="${company} Logo" class="company-logo">
+              <h1 class="job-title">${title}</h1>
             <h2 class="company-name">${company}</h2>
           </div>
           

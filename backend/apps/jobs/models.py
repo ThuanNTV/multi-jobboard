@@ -11,8 +11,7 @@ class JobListing(models.Model):
     experience = models.JSONField(max_length=50, blank=True, null=True)
     level = models.CharField(max_length=50, blank=True, null=True)
     tags = models.JSONField(default=list)  # Lưu mảng tags/kỹ năng
-    url = models.URLField(max_length=500)
-    source = models.URLField(max_length=500)
+    company_url_img = models.URLField(max_length=500)
     description = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -32,7 +31,6 @@ class JobListing(models.Model):
             experience=job_json.get("experience", ""),
             level=job_json.get("level", ""),
             tags=job_json.get("tags", []),
-            url=job_json.get("url", ""),
-            source=job_json.get("source", ""),
+            company_url_img=job_json.get("company_url_img", ""),
             description=job_json.get("description", ""),
         )

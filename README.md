@@ -87,6 +87,8 @@ New-Item -Path . -Name ".env" -ItemType "File"
 notepad .env
 
 # run
+python -m jobhub_crawler.main
+
 PYTHONPATH=. python jobhub_crawler/main.py
 
 ```

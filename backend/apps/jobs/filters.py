@@ -13,4 +13,4 @@ class JobListingFilter(filters.FilterSet):
 
     class Meta:
         model = JobListing
-        fields = ['location', 'source']
+        fields = ['location']
