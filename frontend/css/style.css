@@ -260,7 +260,7 @@ nav a:hover::after {
 
 /* Main Content */
 main {
-  max-width: 1000px;
+  max-width: 1400px;
   margin: 80px auto;
   padding: 0 20px;
 }
@@ -288,6 +288,7 @@ main {
 .job-list {
   list-style: none;
   display: grid;
+  grid-template-columns: auto auto;
   gap: 25px;
 }
 

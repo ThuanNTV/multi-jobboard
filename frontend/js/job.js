@@ -222,9 +222,31 @@ function formatContactInfo(text) {
 function highlightKeywords(text) {
   const keywordGroups = {
     tech: [
+      "RPA tools",
+      "data visualization tool",
+      "distributions",
+      "NodeJS",
+      "ReactJS",
+      "protocols",
+      "Node",
+      "C/C++",
+      "NET",
+      "Next",
+      "DB",
+      "MQ",
+      "RabbitMQ",
+      "noSQL",
+      "MS SQL",
+      "Oracle",
+      "MongoDB",
+      "framework",
       "JavaScript",
       "TypeScript",
       "Python",
+      "Core Java",
+      "SpringMVC",
+      "SpringBoot",
+      "Reactive programming",
       "Java",
       "C#",
       "PHP",
@@ -246,6 +268,7 @@ function highlightKeywords(text) {
       "Bootstrap",
       "MySQL",
       "PostgreSQL",
+      "Postgres",
       "MongoDB",
       "Redis",
       "SQLite",
@@ -262,8 +285,143 @@ function highlightKeywords(text) {
       "GraphQL",
       "JSON",
       "XML",
+      "analytical",
+      "debugging",
+      "performance",
+      "testing",
+      "ERP",
+      "SaaS",
+      "web applications",
+      "wireframes",
+      "user flows",
+      "process diagrams",
+      "mockups",
+      "Figma",
+      "Lucidchart",
+      "Jira",
+      "Confluence",
+      "SDLC",
+      "Agile",
+      "APIs",
+      "frontend",
+      "backend",
+      "databases",
+      "data models",
+      "system architecture",
+      "effort estimates",
+      "technical blockers",
+      "security",
+      "integration",
+      "UI/UX",
+      "cloud",
+      "Azure",
+      "RESTful APIs",
+      "error codes",
+      "3D",
+      "VFX",
+      "shader",
+      "2D",
+      "game engine",
+      "Unity",
+      "Unreal Engine",
+      "After Effects",
+      "Particle System",
+      "Flutter",
+      "Dart",
+      "multithreading",
+      "file handling",
+      "streams",
+      "OOP",
+      "SOLID",
+      "MVVM/MVC",
+      "BLoC",
+      "Android",
+      "iOS",
+      "web",
+      "CRM",
+      "DWH",
+      "Windows",
+      "CI/CD",
+      "Jenkins",
+      "JS",
+      "test cases",
+      "test plan",
+      "SQL",
+      "design",
+      "systems",
+      "on-boarding",
+      "customer service",
+      "OTP/soft-token",
+      "microservice",
+      "DevOps",
+      "ARM",
+      "DSP",
+      "ASIC",
+      "Linux",
+      "Frameworks",
+      "Libraries",
+      "AI",
+      "SRE",
+      "CloudFormation",
+      "Terraform",
+      "services",
+      "service",
+      "comparable platform",
+      "Bash",
+      "networking",
+      "network",
+      "database administration",
+      "microservices",
+      "event-driven",
+      "DDD",
+      "Spring Boot",
+      "Spring Cloud",
+      "WebFlux",
+      "GKE",
+      "Pub/Sub",
+      "Firestore",
+      "Bigtable",
+      "reactive",
+      "Helm",
+      "maintain",
+      "native",
+      "real-time data",
+      "real-time",
+      "SVN",
+      "Maven",
+      "Gradle",
+      "CSDL",
+      "Deep Learning",
+      "Machine Learning",
+      "Scikit-learn",
+      "TensorFlow",
+      "Keras",
+      "PyTorch",
+      "WordPress",
+      "BackLog",
+      "SpreadSheet",
+      "XD",
+      "CRUD",
+      "RESTful",
+      "OS",
+      "Kafka",
+      // Vietnamese keywords
+      "giao diện web",
     ],
     business: [
+      "Team Leadership",
+      "provisioning",
+      "configuration",
+      "System Engineer",
+      "System Analyst",
+      "Front End Engineer",
+      "Back End Engineer",
+      "front-end",
+      "back-end",
+      "Full Stack Engineer",
+      "full-stack",
+      "AI project",
+      "QC Manager",
       "Full-time",
       "Part-time",
       "Remote",
@@ -277,10 +435,50 @@ function highlightKeywords(text) {
       "Agile",
       "Scrum",
       "Kanban",
-      "DevOps",
-      "CI/CD",
+      "Working hours",
+      "Analyst",
+      "stakeholders",
+      "requirements",
+      "BRD",
+      "FSD",
+      "SRS",
+      "user stories",
+      "use cases",
+      "MoSCoW",
+      "Value vs Effort Matrix",
+      "requirement traceability",
+      "change requests",
+      "impact assessment",
+      "UAT",
+      "timeline",
+      "meeting minutes",
+      "training guides",
+      "user manuals",
+      "roadmap",
+      "QA",
+      "acceptance criteria",
+      "sprint review",
+      "release planning",
+      "mentorship",
+      "career path",
+      "document management",
+      "digitization",
+      "automation",
+      "communication",
+      "presentation skills",
+      "Discovery",
+      "Deployment",
+      "Development",
+      "Medior",
+      "cross-platform",
+      "English",
+      "Japanese",
+      "Korean",
+      "Product",
+      // Vietnamese keywords
     ],
     vietnamese: [
+      "Lập trình nhúng",
       "Lập trình",
       "Phát triển",
       "Thiết kế",
@@ -290,11 +488,95 @@ function highlightKeywords(text) {
       "Đại học",
       "Cao đẳng",
       "Chứng chỉ",
+      "nghỉ lễ",
+      "ngày phép",
+      "làm việc thoải mái",
+      "không đồng phục",
+      "lương tháng 13",
+      "thử việc",
+      "thưởng",
+      "ngày lễ",
+      "CHẾ ĐỘ",
+      "Miễn phí",
+      "Cơ hội học hỏi",
+      "kiến thức",
+      "công nghệ",
+      "hệ thống",
+      "kĩ năng",
+      "học hỏi",
+      "nghiên cứu",
+      "research",
+      "game",
+      "cấu trúc dữ liệu và giải thuật",
+      "lý thuyết đồ thị",
+      "data structures and algorithms",
+
+      // english keywords
+      "13 months",
+      "13th-month",
+      "13th month salary",
+      "Multi-tasking",
+      "stress",
+      "deadline",
+      "teamwork",
+      "high pressure",
+      "work overtime",
+    ],
+    Professional: [
+      "Bachelor’s",
+      "Personality",
+      "Master degree",
+      "major in Computer Science",
+      "Information Technology",
+      "related field",
+      "Toeic",
+      "IELTS",
+      "Engineering",
+      "Computer Science",
+      "Software Engineering",
+      "Master’s degree",
+      "Bachelor’s degree",
+      "Development",
+
+      // Vietnamese keywords
+      "CNTT",
+      "Kỹ thuật",
+      "Công nghệ thông tin",
+      "Điện tử viễn thông",
+      "Made-in-Vietnam",
+      "Made-by-Vietnamese",
+      "Khoa học dữ liệu",
+      "Khoa học máy tính",
+      "Toán học ứng dụng",
+      "Thạc sĩ",
+      "Cử nhân",
+      "Kỹ sư",
+      "Kỹ sư phần mềm",
+      "Kỹ sư hệ thống",
+      "Kỹ sư mạng",
     ],
   };
 
   let result = text;
+  result = result.replace(/:/g, " : ");
+  result = result.replace(/\./g, ". ");
+  result = result.replace(/\#/g, " ");
+  result = result.replace(/•/g, "<br> • ");
+  result = result.replace(/\+/g, "<br>");
 
+  result = result.replace(/Job description/g, "<h2>Job description</h2><hr>");
+  const headingMap = {
+    "Your skills and experience(s?:)?":
+      "<br><h3>Your skills and experience</h3><br>",
+    "Why you'll love working here(s?:)?":
+      "<br><h3>Why you'll love working here</h3>",
+    "Responsibilities(s?:)?": "<br><br><h3>Responsibilities</h3>",
+    "Proposition(s?:)?": "<br><h3>Proposition</h3><br>",
+  };
+  for (const [text, replacement] of Object.entries(headingMap)) {
+    const regex = new RegExp(`${text}(\\s*:)?`, "g");
+    result = result.replace(regex, replacement);
+  }
   Object.entries(keywordGroups).forEach(([group, keywords]) => {
     keywords.forEach((keyword) => {
       const regex = new RegExp(`\\b${escapeRegex(keyword)}\\b`, "gi");
@@ -307,8 +589,18 @@ function highlightKeywords(text) {
 
   // Highlight salary/money
   result = result.replace(
-    /\b(\d{1,3}(?:[,.]?\d{3})*)\s*(VNĐ|USD|triệu|tr|k|nghìn)\b/gi,
+    /\b(\d{1,3}(?:[.,]?\s?\d{3})*)\s*(VNĐ|VND|USD|triệu|tr|k|nghìn|vnđ|M)\b/gi,
     '<span class="salary-highlight">$1 $2</span>'
+  );
+  result = result.replace(
+    /\$\d{1,5}(?:[,.]?\d{3})*(?:\s*(?:VNĐ|USD|triệu|tr|k|nghìn))?/gi,
+    '<span class="salary-highlight">$&</span>'
+  );
+
+  // hight light word
+  result = result.replace(
+    /(Miễn phí|miễn phí|lương|Lương|thưởng|Free|free|Premium health|Premium PVI Health)/g,
+    '<span class="keyword keyword-vietnamese" style="color: #0ea5e9">$1</span>'
   );
 
   // Highlight years of experience
@@ -339,34 +631,49 @@ async function loadJobDetail() {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const job = await response.json();
-
+    var locationsHtml;
     // Process job data
+    document.title = `Chi tiết công việc: ${job.title || "Không rõ tiêu đề"}`;
     const title = job.title || "Không có tiêu đề";
     const company = job.company || "Không rõ công ty";
     const salary = processSalary(job.salary);
     const description = formatJobDescription(job.description || "");
-
-    const locationsHtml = (job.location || [])
-      .filter((loc) => loc?.trim())
-      .map((loc) => `<span class="location-tag">${loc}</span>`)
-      .join("");
-
+    const location = job.location || [];
+    if (Array.isArray(location)) {
+      locationsHtml = location
+        .filter((loc) => loc?.trim())
+        .map((loc) => `<span class="location-tag">${loc}</span>`)
+        .join("");
+    } else {
+      locationsHtml =
+        `<span class="location-tag">location` + location + `</span>`;
+    }
     const tagsHtml = (job.tags || [])
       .filter((tag) => tag?.trim())
       .map((tag) => `<span class="skill-tag">${tag}</span>`)
       .join("");
 
     // Additional job metadata
-    const postedDate = job.posted_date
-      ? formatDate(job.posted_date)
-      : "Không rõ";
-    const deadline = job.deadline ? formatDate(job.deadline) : "Không rõ";
+    // const postedDate = job.posted_at ? formatDate(job.posted_at) : "Không rõ";
+    let postedDate = job.posted_at.replace("Posted", "").trim();
+    let deadline = job.deadline ? formatDate(job.deadline) : "Không rõ";
+
+    if (postedDate.includes("and Job expires")) {
+      const parts = postedDate.split("and Job expires in");
+      postedDate = parts[0].trim();
+      deadline = parts[1].trim();
+    } else {
+    }
+
     const jobType = job.job_type || "Full-time";
+    const level = job.level || "Không rõ";
+    const experience = job.experience || "Không rõ";
 
     jobDetailEl.innerHTML = `
       <div class="job-container">
         <div class="job-header">
           <div class="job-title-section">
+            <h1>Chi tiết công việc</h1>
             <h1 class="job-title">${title}</h1>
             <h2 class="company-name">${company}</h2>
           </div>
@@ -378,7 +685,23 @@ async function loadJobDetail() {
             </div>
             <div class="meta-row">
               <span class="meta-item posted">📅 Đăng: ${postedDate}</span>
-              <span class="meta-item deadline">⏳ Hạn: ${deadline}</span>
+              ${
+                deadline !== "Không rõ"
+                  ? `<span class="meta-item deadline">⏳ Hạn: ${deadline}</span>`
+                  : ""
+              }
+            </div>
+            <div class="meta-row">
+            ${
+              level !== "Không rõ"
+                ? `<span class="meta-item level">🚀 Trình độ: ${level}</span>`
+                : ""
+            }
+            ${
+              experience !== "Không rõ"
+                ? `<span class="meta-item experience">🧑‍💻 Kinh Nghiệm: ${experience}</span>`
+                : ""
+            }
             </div>
           </div>
           
@@ -420,7 +743,6 @@ async function loadJobDetail() {
     // Add some CSS for better styling
     addJobDetailStyles();
   } catch (err) {
-    console.error("Lỗi khi lấy job:", err);
     jobDetailEl.innerHTML = `
       <div class="error-container">
         <div class="error-icon">❌</div>
@@ -437,7 +759,11 @@ async function loadJobDetail() {
 
 // Helper functions
 function processSalary(salary) {
-  if (!salary || salary === "Sign in to view salary") {
+  if (
+    !salary ||
+    salary === "Sign in to view salary" ||
+    salary === "Sign In to view salary"
+  ) {
     return `${Math.floor(Math.random() * (30 - 8 + 1)) + 8} - ${
       Math.floor(Math.random() * (50 - 15 + 1)) + 15
     } triệu VNĐ`;
@@ -459,7 +785,7 @@ function addJobDetailStyles() {
 
   const styles = `
     <style id="job-detail-styles">
-      .job-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+      .job-container { max-width: 1800px; margin: 0 auto; padding: 20px; }
       .job-header { background: #f8f9fa; padding: 24px; border-radius: 12px; margin-bottom: 24px; }
       .job-title { font-size: 2em; margin: 0 0 8px 0; color: #2c3e50; }
       .company-name { font-size: 1.3em; margin: 0 0 16px 0; color: #3498db; }
@@ -481,6 +807,7 @@ function addJobDetailStyles() {
       .keyword { font-weight: 600; padding: 2px 4px; border-radius: 4px; }
       .keyword-tech { background: #e8f5e8; color: #2e7d32; }
       .keyword-business { background: #fff3e0; color: #f57c00; }
+      .keyword-Professional { background: #e3f2fd; color:rgb(212, 52, 60); }
       .salary-highlight { background: #e8f5e8; color: #2e7d32; font-weight: 600; }
       .experience-highlight { background: #e3f2fd; color: #1976d2; font-weight: 600; }
       .contact-info { background: #f5f5f5; padding: 12px; border-radius: 8px; margin: 12px 0; }
@@ -506,13 +833,11 @@ loadJobDetail();
 
 // Enhanced job action functions
 window.applyJob = function (jobId) {
-  console.log("Applying for job:", jobId);
   // Show application modal or redirect
   showApplicationModal(jobId);
 };
 
 window.saveJob = function (jobId) {
-  console.log("Saving job:", jobId);
   const savedJobs = JSON.parse(localStorage.getItem("savedJobs") || "[]");
   if (!savedJobs.includes(jobId)) {
     savedJobs.push(jobId);
