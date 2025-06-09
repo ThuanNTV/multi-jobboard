@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trang Tuyển Dụng - JobHub Style</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="./access/img/rounded-in-photoretrica.png"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-container">
+        <div class="logo">JobHub</div>
+        <nav>
+          <a href="#">Trang chủ</a>
+          <a href="#">Doanh nghiệp</a>
+          <a href="#">Liên hệ</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Tìm việc làm <span class="highlight">mơ ước</span> của bạn</h1>
+        <p>
+          Hàng ngàn cơ hội việc làm hấp dẫn từ các công ty hàng đầu đang chờ đón
+          bạn.
+        </p>
+
+        <div class="search-container">
+          <div class="search-bar">
+            <input
+              type="text"
+              placeholder="Nhập từ khóa: lập trình, thiết kế, marketing..."
+            />
+            <select>
+              <option value="" disabled selected>Chọn địa điểm</option>
+              <option>Hà Nội</option>
+              <option>TP Hồ Chí Minh</option>
+              <option>Đà Nẵng</option>
+              <option>Hải Phòng</option>
+              <option>Cần Thơ</option>
+            </select>
+            <button type="button">Tìm việc ngay</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main>
+      <div class="section-title">
+        <h2>Việc làm nổi bật</h2>
+        <p>Những cơ hội việc làm tốt nhất dành cho bạn</p>
+      </div>
+
+      <div class="results-summary">
+        <div class="results-count">
+          Hiển thị <span class="highlight">1-6</span> trong tổng số
+          <span class="highlight">24</span> việc làm
+        </div>
+        <div class="sort-dropdown">
+          <label for="sort">Sắp xếp theo:</label>
+          <select id="sort" onchange="sortJobs(this.value)">
+            <option value="newest">Mới nhất</option>
+            <option value="salary">Mức lương</option>
+            <option value="company">Công ty</option>
+            <option value="location">Địa điểm</option>
+          </select>
+        </div>
+      </div>
+
+      <ul class="job-list" id="jobList">
+        <li class="job-item">
+          <div class="job-info">
+            <div class="job-title">Lập trình viên Frontend React</div>
+            <div class="job-company">Công ty ABC Tech</div>
+            <div class="job-meta">
+              <span class="job-salary">15 - 20 triệu VNĐ</span>
+              <span class="job-location">Hà Nội</span>
+            </div>
+          </div>
+          <button class="apply-btn">Ứng tuyển</button>
+        </li>
+
+        <li class="job-item">
+          <div class="job-info">
+            <div class="job-title">Chuyên viên Digital Marketing</div>
+            <div class="job-company">Công ty Marketing Pro</div>
+            <div class="job-meta">
+              <span class="job-salary">10 - 14 triệu VNĐ</span>
+              <span class="job-location">TP Hồ Chí Minh</span>
+            </div>
+          </div>
+          <button class="apply-btn">Ứng tuyển</button>
+        </li>
+
+        <li class="job-item">
+          <div class="job-info">
+            <div class="job-title">Kỹ sư DevOps</div>
+            <div class="job-company">Công ty Dev Solutions</div>
+            <div class="job-meta">
+              <span class="job-salary">20 - 25 triệu VNĐ</span>
+              <span class="job-location">Đà Nẵng</span>
+            </div>
+          </div>
+          <button class="apply-btn">Ứng tuyển</button>
+        </li>
+
+        <li class="job-item">
+          <div class="job-info">
+            <div class="job-title">Nhân viên chăm sóc khách hàng</div>
+            <div class="job-company">Công ty Dịch vụ ABC</div>
+            <div class="job-meta">
+              <span class="job-salary">7 - 9 triệu VNĐ</span>
+              <span class="job-location">Hải Phòng</span>
+            </div>
+          </div>
+          <button class="apply-btn">Ứng tuyển</button>
+        </li>
+
+        <li class="job-item">
+          <div class="job-info">
+            <div class="job-title">Backend Developer Java</div>
+            <div class="job-company">Công ty XYZ Solutions</div>
+            <div class="job-meta">
+              <span class="job-salary">18 - 25 triệu VNĐ</span>
+              <span class="job-location">Hà Nội</span>
+            </div>
+          </div>
+          <button class="apply-btn">Ứng tuyển</button>
+        </li>
+
+        <li class="job-item">
+          <div class="job-info">
+            <div class="job-title">UI/UX Designer</div>
+            <div class="job-company">Công ty Creative Studio</div>
+            <div class="job-meta">
+              <span class="job-salary">12 - 16 triệu VNĐ</span>
+              <span class="job-location">TP Hồ Chí Minh</span>
+            </div>
+          </div>
+          <button class="apply-btn">Ứng tuyển</button>
+        </li>
+      </ul>
+
+      <!-- Pagination -->
+      <div class="pagination-container">
+        <div class="pagination">
+          <button
+            class="pagination-btn pagination-prev"
+            onclick="previousPage()"
+            disabled
+          >
+            ‹
+          </button>
+
+          <div class="pagination-info">Trang 1 / 4</div>
+
+          <button class="pagination-btn pagination-next" onclick="nextPage()">
+            ›
+          </button>
+
+          <!-- <button class="pagination-btn active" onclick="goToPage(1)">1</button>
+          <button class="pagination-btn" onclick="goToPage(2)">2</button>
+          <button class="pagination-btn" onclick="goToPage(3)">3</button>
+          <div class="pagination-dots">...</div>
+          <button class="pagination-btn" onclick="goToPage(4)">4</button> -->
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="#">Về chúng tôi</a>
+          <a href="#">Điều khoản sử dụng</a>
+          <a href="#">Chính sách bảo mật</a>
+          <a href="#">Liên hệ</a>
+        </div>
+        <p>Kết nối những tài năng với cơ hội việc làm tuyệt vời</p>
+        <div class="footer-bottom">
+          &copy; 2025 JobHub - Nền tảng tuyển dụng hàng đầu Việt Nam
+        </div>
+      </div>
+    </footer>
+    <script src="./js/index.js"></script>
+  </body>
+</html>
