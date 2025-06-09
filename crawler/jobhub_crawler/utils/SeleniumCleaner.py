@@ -61,19 +61,6 @@ class SeleniumCleaner:
 
         return killed_count
 
-    def clean_selenium_temp_dirs(self):
-        temp_root = tempfile.gettempdir()  # Lấy đường dẫn %TEMP%
-        pattern = os.path.join(temp_root, "selenium_jobhub_*")
-        temp_dirs = glob.glob(pattern)
-
-        for dir_path in temp_dirs:
-            if os.path.isdir(dir_path):
-                try:
-                    shutil.rmtree(dir_path)
-                    logger.info(f"🧹 Đã xoá thư mục: {dir_path}")
-                except Exception as e:
-                    logger.info(f"⚠️ Không thể xoá {dir_path}: {e}")
-
     def cleanup_temp_files(self, days_old=0):
         """Dọn dẹp temp files"""
         patterns = [
@@ -439,6 +426,23 @@ def main():
         # Default: show help
         parser.print_help()
 
+def clean_selenium_temp_dirs():
+        temp_root = tempfile.gettempdir()  # Lấy đường dẫn %TEMP%
+        patterns = [
+            "selenium_jobhub_*",
+            "chrome_url_fetcher_*"
+        ]
+        for pattern in patterns:
+            search_pattern = os.path.join(temp_root, pattern)
+            temp_dirs = glob.glob(search_pattern)
+
+            for dir_path in temp_dirs:
+                if os.path.isdir(dir_path):
+                    try:
+                        shutil.rmtree(dir_path)
+                        logger.info(f"🧹 Đã xoá thư mục: {dir_path}")
+                    except Exception as e:
+                        logger.info(f"⚠️ Không thể xoá {dir_path}: {e}")
 
 if __name__ == "__main__":
     main()
