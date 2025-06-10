@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 from jobhub_crawler.core.job_runner import JobRunner
 from jobhub_crawler.spiders.newtopdev import NewTopDevSpider
 from jobhub_crawler.spiders.newitviec import NewItViecSpider
-from jobhub_crawler.utils.SaveToDatabase import _SaveToData
+from jobhub_crawler.spiders.vietnamworks import VietNamWorksSpider
+from jobhub_crawler.utils.SaveToDatabase import save_to_database
 from jobhub_crawler.utils.SeleniumCleaner import clean_selenium_temp_dirs
 
 from jobhub_crawler.utils.check import _open_and_read_file, _merge_two_records
@@ -71,7 +72,7 @@ def run_crawler():
     crawl_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     runner = JobRunner()
     runner.run_all([
-        #     # VietnamworksSpider
+        # VietNamWorksSpider
         NewTopDevSpider,
         # NewItViecSpider
     ])
@@ -105,7 +106,8 @@ def main():
     logging.info("✅ Crawling finished. ⏳ Bắt đầu dọn rác...")
     clean_selenium_temp_dirs()
     logging.info("✅ Clean finished. ⏳ Bắt đầu lưu dữ liệu vào DATABASE...")
-    _SaveToData()
+    # For incremental sync (recommended) - For full sync (replace all data)
+    save_to_database("incremental")
     logging.info("✅ Save finished. ⏳ Đợi %d giây rồi khởi động lại...", INTERVAL_SECONDS)
     time.sleep(INTERVAL_SECONDS)
 
