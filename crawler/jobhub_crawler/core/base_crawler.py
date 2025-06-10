@@ -11,6 +11,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import undetected_chromedriver as uc
+from fake_useragent import UserAgent
 
 from jobhub_crawler.utils.helpers import _get_file
 
@@ -38,6 +39,19 @@ class BaseCrawler:
         self.driver = None
         self.temp_dir = None
         self.is_closed = False
+        self.user_agent = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1",
+            "Cache-Control": "max-age=0"
+        }
 
         # Register cleanup nếu chưa có
         if not BaseCrawler._cleanup_registered:
@@ -52,7 +66,7 @@ class BaseCrawler:
             if use_undetected:
                 self._init_undetected_driver()
             else:
-                self._init_standard_driver(user_agent, window_size)
+                self._init_standard_driver(self.user_agent, window_size)
         except Exception as e:
             self._cleanup()
             raise
@@ -105,7 +119,7 @@ class BaseCrawler:
 
             # Set custom user agent if provided
             if user_agent:
-                chrome_options.add_argument(f"user-agent={user_agent}")
+                chrome_options.add_argument(f"--user-agent={user_agent['User-Agent']}")
 
             # Initialize Chrome driver with service object
             service = Service(ChromeDriverManager().install())
@@ -145,6 +159,7 @@ class BaseCrawler:
             options.add_argument("--start-maximized")
             options.add_argument("--disable-plugins")
             options.add_argument("--disable-images")
+            options.add_argument(f"--user-agent={self.user_agent['User-Agent']}")
 
             # Reduce logging
             options.add_argument("--log-level=3")
@@ -158,7 +173,7 @@ class BaseCrawler:
                 "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
 
             # Initialize the undetected ChromeDriver
-            self.driver = uc.Chrome(options=options)
+            self.driver = uc.Chrome(options=options, use_subprocess=True)
 
             self._inject_stealth_js()
             # Set page load timeout
